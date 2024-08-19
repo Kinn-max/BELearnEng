@@ -9,6 +9,7 @@ import lombok.*;
 @AllArgsConstructor
 @NoArgsConstructor
 @Entity
+@Builder
 @Table(name = "vocabulary")
 public class VocabularyEntity extends ExtentOfCommon {
     @Id
@@ -24,9 +25,9 @@ public class VocabularyEntity extends ExtentOfCommon {
     @Column(name = "part")
     private String part;
 
-    @Column(name = "sound")
+    @Column(name = "sound",columnDefinition = "LONGTEXT")
+    @Lob
     private String sound;
-
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "category_id")

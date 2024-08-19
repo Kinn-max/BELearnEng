@@ -9,6 +9,7 @@ import lombok.*;
 @AllArgsConstructor
 @NoArgsConstructor
 @Entity
+@Builder
 @Table(name = "grammar")
 public class GrammarEntity {
     @Id
@@ -18,10 +19,12 @@ public class GrammarEntity {
     @Column(name = "name")
     private String name;
 
-    @Column(name = "image")
+    @Column(name = "image", columnDefinition = "LONGTEXT")
+    @Lob
     private String image;
 
     @Column(name = "content", columnDefinition = "LONGTEXT")
+    @Lob
     private String content;
 
     @ManyToOne(fetch = FetchType.LAZY)

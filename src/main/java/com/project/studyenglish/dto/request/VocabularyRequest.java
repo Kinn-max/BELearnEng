@@ -3,6 +3,7 @@ package com.project.studyenglish.dto.request;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
 import jakarta.validation.constraints.NotEmpty;
+import jakarta.validation.constraints.NotNull;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
@@ -14,6 +15,9 @@ import lombok.Setter;
 @NoArgsConstructor
 public class VocabularyRequest {
     private Long id;
+
+    @NotNull(message = "ID Topic cannot be null")
+    private  Long idTopic;
 
     @NotEmpty(message = "Tên tiếng việt không được bỏ trống")
     private String nameVietnamese;
@@ -27,10 +31,8 @@ public class VocabularyRequest {
     @NotEmpty(message = "Thuộc từ loại không được trống")
     private String part;
 
-    @NotEmpty(message = "Âm thanh không được trống")
     private String sound;
 
-    @NotEmpty(message = "Ảnh không được trống")
     private String image;
     
     @NotEmpty(message = "Ví dụ không được trống")

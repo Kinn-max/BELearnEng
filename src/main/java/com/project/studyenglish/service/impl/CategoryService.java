@@ -1,5 +1,6 @@
 package com.project.studyenglish.service.impl;
 
+import com.project.studyenglish.customexceptions.DataNotFoundException;
 import com.project.studyenglish.dto.CategoryOfCommonDto;
 import com.project.studyenglish.dto.request.CategoryRequest;
 import com.project.studyenglish.models.CategoryEntity;
@@ -45,7 +46,6 @@ public class CategoryService implements ICategoryService {
     public CategoryEntity createCategory(CategoryRequest categoryRequest) {
         CategoryEntity categoryEntity = CategoryEntity
                 .builder()
-                .id(categoryRequest.getId())
                 .name(categoryRequest.getName())
                 .description(categoryRequest.getDescription())
                 .image(categoryRequest.getImage())
@@ -53,6 +53,22 @@ public class CategoryService implements ICategoryService {
                 .status(true)
                 .build();
         return categoryRepository.save(categoryEntity);
+    }
+
+    @Override
+    public CategoryEntity updateCategory(CategoryRequest categoryRequest) {
+        CategoryEntity categoryEntity = getCategoryEntityById(categoryRequest.getId());
+        if(categoryEntity != null) {
+            categoryEntity.setName(categoryRequest.getName());
+            categoryEntity.setDescription(categoryRequest.getDescription());
+            if(categoryRequest.getImage() != null) {
+                categoryEntity.setImage(categoryRequest.getImage());
+            }
+            categoryEntity.setCodeName(categoryRequest.getCodeName());
+            categoryEntity.setStatus(true);
+            return categoryRepository.save(categoryEntity);
+        }
+        return null;
     }
 
     @Override
@@ -71,5 +87,11 @@ public class CategoryService implements ICategoryService {
     public CategoryOfCommonDto getCategoryById(Long id) {
         CategoryEntity categoryEntity = categoryRepository.findById(id).get();
         return modelMapper.map(categoryEntity, CategoryOfCommonDto.class);
+    }
+
+    @Override
+    public CategoryEntity getCategoryEntityById(Long id) {
+        return categoryRepository.findById(id)
+                .orElseThrow(() -> new DataNotFoundException("Category not found"));
     }
 }

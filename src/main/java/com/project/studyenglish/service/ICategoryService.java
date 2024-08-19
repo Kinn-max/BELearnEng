@@ -9,7 +9,9 @@ import java.util.List;
 public interface ICategoryService {
     List<CategoryOfCommonDto> getAllItemOfCategory(String codeName);
     CategoryEntity createCategory(CategoryRequest categoryRequest);
+    CategoryEntity updateCategory(CategoryRequest categoryRequest);
     void deleteCategory(Long id);
     void statusCategory(Long id);
     CategoryOfCommonDto getCategoryById(Long id);
+    CategoryEntity getCategoryEntityById(Long id);
 }

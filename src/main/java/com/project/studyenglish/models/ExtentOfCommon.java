@@ -1,6 +1,7 @@
 package com.project.studyenglish.models;
 
 import jakarta.persistence.Column;
+import jakarta.persistence.Lob;
 import jakarta.persistence.MappedSuperclass;
 import lombok.*;
 
@@ -17,6 +18,7 @@ public class ExtentOfCommon {
     @Column(name = "description")
     private String description;
 
-    @Column(name = "image")
+    @Column(name = "image",columnDefinition = "LONGTEXT")
+    @Lob
     private String image;
 }

@@ -34,7 +34,8 @@ public class ExamEntity {
     @Column(name = "answer")
     private String answer;
 
-    @Column(name = "image")
+    @Column(name = "image",columnDefinition = "LONGTEXT")
+    @Lob
     private String image;
 
     @ManyToOne(fetch = FetchType.LAZY)

@@ -10,7 +10,10 @@ public class Endpoints {
     };
 
     public  static  final  String[] PUBLIC_POST_ENDPOINTS = {
-            "/api/**"
+            "/api/**",
+    };
+    public  static  final  String[] PUBLIC_PUT_ENDPOINTS = {
+            "/api/**",
     };
 
     public  static  final  String[] ADMIN_GET_ENDPOINTS = {

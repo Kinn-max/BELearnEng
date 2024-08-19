@@ -30,7 +30,9 @@ public class WebSecurityConfig {
                     requests
                             // Allow unauthenticated access to specific POST requests
                             .requestMatchers(POST, apiPrefix + "/category/**").permitAll()
+                            .requestMatchers(POST, apiPrefix + "/vocabulary/**").permitAll()
                             .requestMatchers(POST, PUBLIC_POST_ENDPOINTS).permitAll()
+                            .requestMatchers(PUT, PUBLIC_PUT_ENDPOINTS).permitAll()
                             .requestMatchers(GET, PUBLIC_GET_ENDPOINTS).permitAll()
                             .requestMatchers(DELETE, PUBLIC_DELETE_ENDPOINTS).permitAll()
                             .anyRequest().authenticated();
