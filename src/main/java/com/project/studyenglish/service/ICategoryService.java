@@ -7,7 +7,8 @@ import com.project.studyenglish.models.CategoryEntity;
 import java.util.List;
 
 public interface ICategoryService {
-    List<CategoryOfCommonDto> getAllItemOfCategory(String codeName);
+    List<CategoryOfCommonDto> getAllItemOfCategory(String codeName );
+    List<CategoryOfCommonDto> getAllItemOfCategoryAndStatus(String codeName);
     CategoryEntity createCategory(CategoryRequest categoryRequest);
     CategoryEntity updateCategory(CategoryRequest categoryRequest);
     void deleteCategory(Long id);

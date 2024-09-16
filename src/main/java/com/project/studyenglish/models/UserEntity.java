@@ -33,7 +33,7 @@ public class UserEntity  extends BaseEntity implements UserDetails {
     @Column(name = "password", length = 200, nullable = false)
     private String password;
 
-    @Column(name = "phone_number", length = 10, nullable = false)
+    @Column(name = "phone_number", length = 10)
     private String phoneNumber;
 
     @Column(name = "address")
@@ -58,6 +58,7 @@ public class UserEntity  extends BaseEntity implements UserDetails {
     @Override
     public Collection<? extends GrantedAuthority> getAuthorities() {
         List<SimpleGrantedAuthority> authorityList = new ArrayList<>();
+        authorityList.add(new SimpleGrantedAuthority("ROLE_"+getRoleEntity().getName().toUpperCase()));
         return authorityList;
     }
 

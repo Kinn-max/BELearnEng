@@ -3,9 +3,11 @@ package com.project.studyenglish.service.impl;
 import com.project.studyenglish.converter.ExamConverter;
 import com.project.studyenglish.customexceptions.DataNotFoundException;
 import com.project.studyenglish.dto.ExamDto;
+import com.project.studyenglish.dto.VocabularyDto;
 import com.project.studyenglish.dto.request.ExamRequest;
 import com.project.studyenglish.models.CategoryEntity;
 import com.project.studyenglish.models.ExamEntity;
+import com.project.studyenglish.models.VocabularyEntity;
 import com.project.studyenglish.repository.CategoryRepository;
 import com.project.studyenglish.repository.ExamRepository;
 import com.project.studyenglish.service.IExamService;
@@ -43,6 +45,19 @@ public class ExamService implements IExamService {
         for (ExamEntity examEntity : examEntityList) {
             ExamDto examDto = examConverter.toExam(examEntity);
             examDtoList.add(examDto);
+        }
+        return examDtoList;
+    }
+
+    @Override
+    public List<ExamDto> getAllExamByCategoryAndStatus(Long id) {
+        List<ExamEntity> examEntityList = examRepository.findByCategoryEntity_Id(id);
+        List<ExamDto> examDtoList = new ArrayList<>();
+        for (ExamEntity examEntity : examEntityList) {
+            if(examEntity.getCategoryEntity().getStatus() == true){
+                ExamDto examDto = examConverter.toExam(examEntity);
+                examDtoList.add(examDto);
+            }
         }
         return examDtoList;
     }

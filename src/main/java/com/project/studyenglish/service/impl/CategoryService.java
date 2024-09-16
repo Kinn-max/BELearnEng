@@ -20,8 +20,31 @@ public class CategoryService implements ICategoryService {
     @Autowired
     private ModelMapper modelMapper;
     @Override
-    public List<CategoryOfCommonDto> getAllItemOfCategory(String codeName) {
+    public List<CategoryOfCommonDto> getAllItemOfCategory(String codeName ) {
         List<CategoryEntity> categoryEntityList = categoryRepository.getAllOptionsCategory(codeName);
+        List<CategoryOfCommonDto> categoryOfCommonDtoList = new ArrayList<>();
+        for (CategoryEntity category : categoryEntityList) {
+            CategoryOfCommonDto categoryOfCommonDto = modelMapper.map(category, CategoryOfCommonDto.class);
+            if(category.getExamEntityList() != null && category.getExamEntityList().size() > 0) {
+                categoryOfCommonDto.setQuantity(category.getExamEntityList().size());
+            }
+            if (category.getVocabularyEntityList() != null && category.getVocabularyEntityList().size() > 0) {
+                categoryOfCommonDto.setQuantity(category.getVocabularyEntityList().size());
+            }
+            if(category.getGrammarEntityList() != null && category.getGrammarEntityList().size() > 0) {
+                categoryOfCommonDto.setQuantity(category.getGrammarEntityList().size());
+            }
+            if(category.getProductEntityList() != null && category.getProductEntityList().size() > 0) {
+                categoryOfCommonDto.setQuantity(category.getProductEntityList().size());
+            }
+            categoryOfCommonDtoList.add(categoryOfCommonDto);
+        }
+        return categoryOfCommonDtoList;
+    }
+
+    @Override
+    public List<CategoryOfCommonDto> getAllItemOfCategoryAndStatus(String codeName) {
+        List<CategoryEntity> categoryEntityList = categoryRepository.getAllOptionsCategoryAndStatus(codeName);
         List<CategoryOfCommonDto> categoryOfCommonDtoList = new ArrayList<>();
         for (CategoryEntity category : categoryEntityList) {
             CategoryOfCommonDto categoryOfCommonDto = modelMapper.map(category, CategoryOfCommonDto.class);

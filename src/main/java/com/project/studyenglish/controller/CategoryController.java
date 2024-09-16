@@ -33,9 +33,19 @@ public class CategoryController {
         List<CategoryOfCommonDto> vocabularyDtoList = categoryService.getAllItemOfCategory(NameOfCategory.VOCABULARY);
         return ResponseEntity.ok(vocabularyDtoList);
     }
+    @GetMapping(value =  "/vocabulary/status")
+    public ResponseEntity<List<CategoryOfCommonDto>> getAllCategoryOfVocabularyAndStatus() {
+        List<CategoryOfCommonDto> vocabularyDtoList = categoryService.getAllItemOfCategoryAndStatus(NameOfCategory.VOCABULARY);
+        return ResponseEntity.ok(vocabularyDtoList);
+    }
     @GetMapping(value =  "/exam")
     public ResponseEntity<List<CategoryOfCommonDto>> getAllCategoryOfExam() {
         List<CategoryOfCommonDto> categoryOfExamDtoList = categoryService.getAllItemOfCategory(NameOfCategory.EXAM);
+        return ResponseEntity.ok(categoryOfExamDtoList);
+    }
+    @GetMapping(value =  "/exam/status")
+    public ResponseEntity<List<CategoryOfCommonDto>> getAllCategoryOfExamAndStatus() {
+        List<CategoryOfCommonDto> categoryOfExamDtoList = categoryService.getAllItemOfCategoryAndStatus(NameOfCategory.EXAM);
         return ResponseEntity.ok(categoryOfExamDtoList);
     }
     @GetMapping(value =  "/product")
@@ -43,9 +53,19 @@ public class CategoryController {
         List<CategoryOfCommonDto> categoryOfProductDtoList = categoryService.getAllItemOfCategory(NameOfCategory.PRODUCT);
         return ResponseEntity.ok(categoryOfProductDtoList);
     }
+    @GetMapping(value =  "/product/status")
+    public ResponseEntity<List<CategoryOfCommonDto>> getAllCategoryOfProductAndStatus() {
+        List<CategoryOfCommonDto> categoryOfProductDtoList = categoryService.getAllItemOfCategoryAndStatus(NameOfCategory.PRODUCT);
+        return ResponseEntity.ok(categoryOfProductDtoList);
+    }
     @GetMapping(value =  "/grammar")
     public ResponseEntity<List<CategoryOfCommonDto>> getAllCategoryOfGrammar() {
         List<CategoryOfCommonDto> categoryOfProductDtoList = categoryService.getAllItemOfCategory(NameOfCategory.GRAMMAR);
+        return ResponseEntity.ok(categoryOfProductDtoList);
+    }
+    @GetMapping(value =  "/grammar/status")
+    public ResponseEntity<List<CategoryOfCommonDto>> getAllCategoryOfGrammarAndStatus() {
+        List<CategoryOfCommonDto> categoryOfProductDtoList = categoryService.getAllItemOfCategoryAndStatus(NameOfCategory.GRAMMAR);
         return ResponseEntity.ok(categoryOfProductDtoList);
     }
     @PostMapping("")
@@ -58,14 +78,10 @@ public class CategoryController {
             return ResponseEntity.badRequest().body(errorMessages);
         }
         categoryService.createCategory(categoryRequest);
-        Map<String, String> response = new HashMap<>();
-        response.put("message", "Insert category successfully");
-        return ResponseEntity.ok(response);
+        return ResponseEntity.ok("");
     }
     @PutMapping("/{id}")
-    public ResponseEntity<?> updateCategory(
-            @PathVariable long id,
-            @RequestBody CategoryRequest categoryRequest) {
+    public ResponseEntity<?> updateCategory(@PathVariable long id, @RequestBody CategoryRequest categoryRequest) {
         try {
             categoryService.updateCategory(categoryRequest);
             Map<String, String> response = new HashMap<>();

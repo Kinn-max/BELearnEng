@@ -1,6 +1,7 @@
 package com.project.studyenglish.controller;
 
 import com.project.studyenglish.dto.ExamDto;
+import com.project.studyenglish.dto.VocabularyDto;
 import com.project.studyenglish.dto.request.ExamRequest;
 import com.project.studyenglish.service.impl.ExamService;
 import jakarta.validation.Valid;
@@ -71,5 +72,13 @@ public class ExamController {
         response.put("message", "Delete question successfully");
         return ResponseEntity.ok(response);
     }
-
+    @GetMapping("/by-category/{id}/status")
+    public ResponseEntity<?> getAllExamByCategoryStatus(@PathVariable Long id) {
+        try {
+            List<ExamDto> result = examService.getAllExamByCategoryAndStatus(id);
+            return ResponseEntity.ok(result);
+        } catch (Exception e) {
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(e.getMessage());
+        }
+    }
 }

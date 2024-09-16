@@ -1,12 +1,14 @@
 package com.project.studyenglish.controller;
 
 import com.project.studyenglish.dto.CategoryOfCommonDto;
+import com.project.studyenglish.dto.ProductDto;
 import com.project.studyenglish.dto.VocabularyDto;
 import com.project.studyenglish.dto.request.CategoryRequest;
 import com.project.studyenglish.dto.request.VocabularyRequest;
 import com.project.studyenglish.service.IVocabularyService;
 import jakarta.validation.Valid;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.validation.BindingResult;
@@ -64,5 +66,14 @@ public class VocabularyController {
             return ResponseEntity.badRequest().body("Lỗi xảy ra");
         }
 
+    }
+    @GetMapping("/by-category/{id}/status")
+    public ResponseEntity<?> getAllVocabularyByCategoryStatus(@PathVariable Long id) {
+        try {
+            List<VocabularyDto> result= vocabularyService.getAllVocabularyByCategoryAndStatus(id);
+            return ResponseEntity.ok(result);
+        } catch (Exception e) {
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(e.getMessage());
+        }
     }
 }

@@ -6,4 +6,5 @@ import java.util.List;
 
 public interface CategoryCustomRepository {
     List<CategoryEntity> getAllOptionsCategory(String categoryCode);
+    List<CategoryEntity> getAllOptionsCategoryAndStatus(String categoryCode);
 }

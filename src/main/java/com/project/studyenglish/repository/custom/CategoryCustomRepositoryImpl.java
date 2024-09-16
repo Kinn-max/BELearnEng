@@ -13,10 +13,17 @@ public class CategoryCustomRepositoryImpl implements CategoryCustomRepository {
     @PersistenceContext
     private EntityManager entityManager;
 
-
     @Override
     public List<CategoryEntity> getAllOptionsCategory(String categoryCode) {
-        String sql = "SELECT * FROM category WHERE code_name = ? ; ";
+        String sql = "SELECT * FROM category WHERE code_name = ? ;";
+        Query query = entityManager.createNativeQuery(sql.toString(), CategoryEntity.class);
+        query.setParameter(1, categoryCode);
+        return query.getResultList();
+    }
+
+    @Override
+    public List<CategoryEntity> getAllOptionsCategoryAndStatus(String categoryCode) {
+        String sql = "SELECT * FROM category WHERE code_name = ? AND status = 1";
         Query query = entityManager.createNativeQuery(sql.toString(), CategoryEntity.class);
         query.setParameter(1, categoryCode);
         return query.getResultList();

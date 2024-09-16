@@ -13,6 +13,7 @@ import java.util.List;
 public interface IExamService {
     List<ExamDto> getAllExam();
     List<ExamDto> getAllExamByCategory(Long id);
+    List<ExamDto> getAllExamByCategoryAndStatus(Long id);
     ExamEntity createExam(ExamRequest examRequest);
     ExamEntity updateExam(ExamRequest examRequest);
     ExamEntity getExamById(Long id);

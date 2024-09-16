@@ -73,4 +73,17 @@ public class VocabularyService implements IVocabularyService {
         VocabularyDto vocabularyDto = modelMapper.map(vocabularyEntity, VocabularyDto.class);
         return vocabularyDto;
     }
+
+    @Override
+    public List<VocabularyDto> getAllVocabularyByCategoryAndStatus(Long id) {
+        List<VocabularyEntity> vocabularyEntityList = vocabularyRepository.findByCategoryEntity_Id(id);
+        List<VocabularyDto> vocabularyDtoList = new ArrayList<>();
+        for (VocabularyEntity vocabularyEntity : vocabularyEntityList) {
+            if(vocabularyEntity.getCategoryEntity().getStatus() == true){
+                VocabularyDto vocabularyDto = vocabularyConverter.toVocabularyDto(vocabularyEntity);
+                vocabularyDtoList.add(vocabularyDto);
+            }
+        }
+        return vocabularyDtoList;
+    }
 }
