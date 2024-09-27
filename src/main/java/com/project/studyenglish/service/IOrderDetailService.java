@@ -1,8 +1,12 @@
 package com.project.studyenglish.service;
 
 import com.project.studyenglish.dto.request.OrderDetailRequest;
-import com.project.studyenglish.models.OrderDetailEntity;
+import com.project.studyenglish.dto.response.OrderDetailResponse;
+
+import java.util.List;
 
 public interface IOrderDetailService {
-    OrderDetailEntity addOrderDetail(OrderDetailRequest order) throws Exception;
+    void addOrderDetail(OrderDetailRequest order,Long userId);
+    List<OrderDetailResponse> getAllItemInCart(Long userId);
+    void deleteOrderDetail(Long orderDetailId);
 }

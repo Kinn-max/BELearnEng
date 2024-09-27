@@ -89,4 +89,9 @@ public class ProductController {
             return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(e.getMessage());
         }
     }
+    @GetMapping("/random")
+    private ResponseEntity<List<ProductDto>> getProductRandom(){
+        List<ProductDto> productDtoList = productService.getRandomProduct();
+        return ResponseEntity.ok(productDtoList);
+    }
 }

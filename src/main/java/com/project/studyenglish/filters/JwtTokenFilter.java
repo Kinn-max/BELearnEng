@@ -73,7 +73,8 @@ public class JwtTokenFilter extends OncePerRequestFilter {
                 //exam
                 Pair.of(String.format("%s/exam", apiPrefix), "GET"),
                 //grammar
-                Pair.of(String.format("%s/grammar", apiPrefix), "GET")
+                Pair.of(String.format("%s/grammar", apiPrefix), "GET"),
+                Pair.of(String.format("%s/grammar/random", apiPrefix), "GET")
         );
         for(Pair<String, String> bypassToken: bypassTokens) {
             if (request.getServletPath().contains(bypassToken.getFirst()) &&

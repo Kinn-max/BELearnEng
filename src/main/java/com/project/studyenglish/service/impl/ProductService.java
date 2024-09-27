@@ -92,6 +92,19 @@ public class ProductService implements IProductService {
     }
 
     @Override
+    public List<ProductDto> getRandomProduct() {
+        List<ProductEntity> productEntity = productRepository.findRandomProduct();
+        List<ProductDto> productResult = new ArrayList<>();
+        for (ProductEntity product : productEntity) {
+            if(product.getCategoryEntity().getStatus() == true){
+                ProductDto productDto = productConverter.toProductDto(product);
+                productResult.add(productDto);
+            }
+        }
+        return productResult;
+    }
+
+    @Override
     public ProductEntity updateProduct(ProductRequest productRequest) {
         ProductEntity existingProduct = getProductById(productRequest.getId());
         if(existingProduct != null) {

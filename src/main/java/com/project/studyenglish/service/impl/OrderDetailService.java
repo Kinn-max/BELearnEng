@@ -1,7 +1,10 @@
 package com.project.studyenglish.service.impl;
 
 import com.project.studyenglish.components.JwtTokenUtil;
+import com.project.studyenglish.converter.OrderDetailConverter;
+import com.project.studyenglish.customexceptions.DataNotFoundException;
 import com.project.studyenglish.dto.request.OrderDetailRequest;
+import com.project.studyenglish.dto.response.OrderDetailResponse;
 import com.project.studyenglish.models.OrderDetailEntity;
 import com.project.studyenglish.models.OrderEntity;
 import com.project.studyenglish.models.UserEntity;
@@ -9,10 +12,12 @@ import com.project.studyenglish.repository.OrderDetailRepository;
 import com.project.studyenglish.repository.OrderRepository;
 import com.project.studyenglish.repository.UserRepository;
 import com.project.studyenglish.service.IOrderDetailService;
-import org.modelmapper.ModelMapper;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
+
+import java.util.ArrayList;
+import java.util.List;
 
 @Service
 public class OrderDetailService implements IOrderDetailService {
@@ -21,25 +26,55 @@ public class OrderDetailService implements IOrderDetailService {
     @Autowired
     private UserRepository userRepository;
     @Autowired
-    private ModelMapper modelMapper;
-    @Autowired
     private JwtTokenUtil jwtUtil;
     @Autowired
     private OrderRepository orderRepository;
+    @Autowired
+    private OrderDetailConverter orderDetailConverter;
     @Override
-    public OrderDetailEntity addOrderDetail(OrderDetailRequest orderDetailRequest) throws Exception {
-        OrderEntity orderEntity = orderRepository.findOrderNotActive();
-        if(orderEntity == null) {
-            orderEntity = new OrderEntity();
-            orderRepository.save(orderEntity);
+    public void addOrderDetail(OrderDetailRequest orderDetailRequest,Long userId) {
+
+        UserEntity userEntity = userRepository.findById(userId).get();
+        if(userEntity.getRoleEntity().getName().equals("ADMIN")) {
+            throw new DataNotFoundException("You cant not add cart!");
         }
-        OrderDetailEntity orderDetailEntity = modelMapper.map(orderDetailRequest, OrderDetailEntity.class);
+        OrderEntity orderNew = orderRepository.findByUserEntityAndActiveFalse(userEntity);
+        List<OrderDetailEntity> orderDetailList = new ArrayList<>();
+        if(orderNew == null) {
+            orderNew = new OrderEntity();
+            orderRepository.save(orderNew);
+        }else{
+            orderDetailList = orderDetailRepository.findByOrderEntity(orderNew);
+        }
+        OrderDetailEntity orderDetailEntity = orderDetailConverter.toOrderDetail(orderDetailRequest,orderNew);
         orderDetailRepository.save(orderDetailEntity);
-        //get information user
-        String token = (String) SecurityContextHolder.getContext().getAuthentication().getCredentials();
-        String email = jwtUtil.extractEmail(token);
-        UserEntity userEntity = userRepository.findByEmail(email).get();
+        orderDetailList.add(orderDetailEntity);
         //assign value
-    return null;
+        orderNew.setUserEntity(userEntity);
+        orderNew.setOrderDetailEntityList(orderDetailList);
+        orderNew.setActive(false);
+        orderRepository.save(orderNew);
+    }
+
+    @Override
+    public List<OrderDetailResponse> getAllItemInCart(Long userId) {
+        UserEntity userEntity = userRepository.findById(userId).get();
+        OrderEntity orderNew = orderRepository.findByUserEntityAndActiveFalse(userEntity);
+        if(orderNew == null) {
+            throw new DataNotFoundException("You have not added any products to your cart.");
+        }else {
+            List<OrderDetailEntity> orderDetailList = orderDetailRepository.findByOrderEntity(orderNew);
+            List<OrderDetailResponse> orderDetailResponseList = new ArrayList<>();
+            for (OrderDetailEntity orderDetailEntity : orderDetailList) {
+                OrderDetailResponse orderDetailResponse = orderDetailConverter.toOrderDetailRequest(orderDetailEntity);
+                orderDetailResponseList.add(orderDetailResponse);
+            }
+            return orderDetailResponseList;
+        }
+    }
+
+    @Override
+    public void deleteOrderDetail(Long orderDetailId) {
+        orderDetailRepository.deleteById(orderDetailId);
     }
 }

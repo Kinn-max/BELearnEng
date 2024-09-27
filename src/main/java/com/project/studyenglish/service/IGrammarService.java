@@ -13,4 +13,5 @@ public interface IGrammarService {
     GrammarDto getGrammarById(Long id);
     GrammarEntity getGrammarEntityById(Long id);
     void deleteGrammar(Long id);
+    List<GrammarDto> getAllGrammarRandom();
 }

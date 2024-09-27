@@ -11,6 +11,8 @@ import com.project.studyenglish.service.IGrammarService;
 import org.modelmapper.ModelMapper;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.dao.DataIntegrityViolationException;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 
 import java.util.ArrayList;
@@ -78,5 +80,16 @@ public class GrammarService implements IGrammarService {
     @Override
     public void deleteGrammar(Long id) {
         grammarRepository.deleteById(id);
+    }
+
+    @Override
+    public List<GrammarDto> getAllGrammarRandom() {
+        List<GrammarEntity> grammarEntityList = grammarRepository.findRandomGrammar();
+        List<GrammarDto> grammarDtoList = new ArrayList<>();
+        for (GrammarEntity grammarEntity : grammarEntityList) {
+            GrammarDto grammarDto = modelMapper.map(grammarEntity, GrammarDto.class);
+            grammarDtoList.add(grammarDto);
+        }
+        return grammarDtoList;
     }
 }

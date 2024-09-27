@@ -9,13 +9,13 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Repository;
 
 @Repository
-public class OrderCustomRepositoryImpl implements OrderCustomRepository {
+public class OrderCustomRepositoryImpl  {
     @PersistenceContext
     private EntityManager entityManager;
-    @Override
-    public OrderEntity findOrderNotActive() {
-        String sql = "SELECT * FROM orders WHERE active=false ;";
-        Query query = entityManager.createNativeQuery(sql.toString(), CategoryEntity.class);
-        return (OrderEntity) query.getSingleResult();
-    }
+//    @Override
+//    public OrderEntity findOrderNotActive() {
+//        String sql = "SELECT * FROM orders WHERE active=false ;";
+//        Query query = entityManager.createNativeQuery(sql.toString(), CategoryEntity.class);
+//        return (OrderEntity) query.getSingleResult();
+//    }
 }

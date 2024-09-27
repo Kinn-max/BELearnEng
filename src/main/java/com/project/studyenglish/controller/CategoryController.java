@@ -78,7 +78,7 @@ public class CategoryController {
             return ResponseEntity.badRequest().body(errorMessages);
         }
         categoryService.createCategory(categoryRequest);
-        return ResponseEntity.ok("");
+        return ResponseEntity.ok("Ok");
     }
     @PutMapping("/{id}")
     public ResponseEntity<?> updateCategory(@PathVariable long id, @RequestBody CategoryRequest categoryRequest) {

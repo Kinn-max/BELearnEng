@@ -3,6 +3,7 @@ package com.project.studyenglish.components;
 
 import com.project.studyenglish.customexceptions.InvalidParamException;
 import com.project.studyenglish.models.UserEntity;
+import com.project.studyenglish.service.impl.UserService;
 import io.jsonwebtoken.Claims;
 import io.jsonwebtoken.SignatureAlgorithm;
 import io.jsonwebtoken.security.Keys;
@@ -24,7 +25,6 @@ import java.util.function.Function;
 public class JwtTokenUtil {
     @Value("${jwt.expiration}")
     private int expiration;
-
     @Value("${jwt.secretKey}")
     private String secretKey;
     public String generateToken(UserEntity user) throws Exception{
@@ -32,6 +32,7 @@ public class JwtTokenUtil {
         Map<String, Object> claims = new HashMap<>();
         claims.put("fullName", user.getFullName());
         claims.put("role", user.getRoleEntity().getName());
+        claims.put("userId", user.getId());
         try {
             String token = Jwts.builder()
                     .setClaims(claims)
@@ -70,6 +71,11 @@ public class JwtTokenUtil {
         Date expirationDate = this.extractClaim(token, Claims::getExpiration);
         return expirationDate.before(new Date());
     }
+    public Long extractUserId(String token) {
+        return extractClaim(token, claims -> claims.get("userId", Long.class));
+    }
+
+
     public String extractEmail(String token) {
         return extractClaim(token, Claims::getSubject);
     }

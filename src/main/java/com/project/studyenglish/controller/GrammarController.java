@@ -81,4 +81,9 @@ public class GrammarController {
         response.put("message", "Delete product with id: "+id+" successfully");
         return ResponseEntity.ok(response);
     }
+    @GetMapping(value = "/random")
+    public ResponseEntity<List<GrammarDto>> getAllGrammarByCategoryIdRandom() {
+        List<GrammarDto> grammarDtoList = grammarService.getAllGrammarRandom();
+        return ResponseEntity.ok(grammarDtoList);
+    }
 }

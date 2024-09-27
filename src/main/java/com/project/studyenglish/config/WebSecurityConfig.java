@@ -1,7 +1,6 @@
 package com.project.studyenglish.config;
 
-import com.project.studyenglish.constant.Endpoints;
-import com.project.studyenglish.constant.NameAccess;
+
 import com.project.studyenglish.filters.JwtTokenFilter;
 import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Value;
@@ -10,8 +9,6 @@ import org.springframework.context.annotation.Configuration;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
 import org.springframework.security.config.annotation.web.configurers.AbstractHttpConfigurer;
-import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
-import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.security.web.SecurityFilterChain;
 import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
 import org.springframework.web.servlet.config.annotation.EnableWebMvc;
@@ -64,6 +61,25 @@ public class WebSecurityConfig {
                             .requestMatchers(POST,  "api/grammar").hasRole("ADMIN")
                             .requestMatchers(PUT,  "api/grammar/**").hasRole("ADMIN")
                             .requestMatchers(DELETE,  "api/grammar/**").hasRole("ADMIN")
+                            //user
+                            .requestMatchers(GET,  "api/user").hasRole("ADMIN")
+                            .requestMatchers(DELETE,  "api/user/**").hasRole("ADMIN")
+                            .requestMatchers(POST,  "api/user/status/**").hasRole("ADMIN")
+                            .requestMatchers(GET,  "api/user/search/**").hasRole("ADMIN")
+                            .requestMatchers(GET,  "api/user/by-token").hasRole("USER")
+                            .requestMatchers(POST,  "api/user/by-token").hasRole("USER")
+                            .requestMatchers(POST,  "api/user/**").hasRole("ADMIN")
+                            //add cart
+                            .requestMatchers(POST,  "api/add-cart").hasRole("USER")
+                            .requestMatchers(GET,  "api/add-cart").hasRole("USER")
+                            .requestMatchers(DELETE,  "api/add-cart/**").hasRole("USER")
+                            //order
+                            .requestMatchers(GET,  "api/user/**").hasAnyRole("USER","ADMIN")
+                            .requestMatchers(POST,  "api/order").hasRole("USER")
+                            .requestMatchers(GET,  "api/order/by-user").hasRole("USER")
+                            .requestMatchers(GET,  "api/order").hasAnyRole("ADMIN","STAFF")
+                            .requestMatchers(GET,  "api/order/admin").hasAnyRole("ADMIN","STAFF")
+                            .requestMatchers(POST,  "api/order/**").hasAnyRole("ADMIN","USER","STAFF")
                             .anyRequest().authenticated();
                 });
         return http.build();

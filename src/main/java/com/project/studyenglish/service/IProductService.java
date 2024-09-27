@@ -15,4 +15,5 @@ public interface IProductService {
     void deleteProduct(Long id);
     List<ProductDto> getAllProductByCategoryAndStatus(Long id);
     ProductDto getProductDtoById(Long id);
+    List<ProductDto> getRandomProduct();
 }
