@@ -5,6 +5,7 @@ import com.project.studyenglish.dto.UserDto;
 import com.project.studyenglish.dto.request.UserLogin;
 import com.project.studyenglish.dto.request.UserRequest;
 import com.project.studyenglish.dto.response.UserResponse;
+import com.project.studyenglish.models.UserEntity;
 import com.project.studyenglish.service.IUserService;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.validation.Valid;
@@ -41,9 +42,9 @@ public class UserController {
             if(!userRequest.getPassword().equals(userRequest.getConfirmPassword())){
                 return ResponseEntity.badRequest().body("Password not match");
             }
-            userService.createUser(userRequest);
-            Map<String, String> response = new HashMap<>();
-            response.put("message", "Create account successfully");
+            UserEntity userEntity = userService.createUser(userRequest);
+            Map<String, Long> response = new HashMap<>();
+            response.put("id", userEntity.getId());
             return ResponseEntity.ok(response);
         }catch (Exception e) {
             return ResponseEntity.badRequest().body(e.getMessage());
@@ -157,6 +158,19 @@ public class UserController {
             return ResponseEntity.badRequest().body(e.getMessage());
         }
     }
+    @PostMapping("/activation/{id}/{code}")
+    public ResponseEntity<?> activationAccount(@PathVariable("id") Long id,@PathVariable("code") Long code, HttpServletRequest request) {
+        try {
+             boolean result =  userService.activationAccount(id,code);
+             if(result){
+                 return ResponseEntity.ok("Activation Success!");
+             }
+             return ResponseEntity.badRequest().body("Activation Failed!");
+        } catch (Exception e) {
+            return ResponseEntity.badRequest().body(e.getMessage());
+        }
+        }
+
 
 
 }

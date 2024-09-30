@@ -45,6 +45,12 @@ public class UserEntity  extends BaseEntity implements UserDetails {
     @Column(name = "facebook_account_id")
     private int facebookAccountId;
 
+    @Column(name = "activation_code")
+    private int activationCode;
+
+    @Column(name = "image",columnDefinition = "LONGTEXT")
+    @Lob
+    private String image;
     @Column(name = "google_account_id")
     private int googleAccountId;
 

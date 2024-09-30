@@ -17,4 +17,5 @@ public interface IUserService {
     UserResponse getUserById(Long id) throws Exception;
     void updateUser(Long id, UserDto userDto) throws Exception;
     void setRoleOfUser(Long role,Long id) throws Exception;
+    boolean activationAccount(Long role,Long id) throws Exception;
 }
