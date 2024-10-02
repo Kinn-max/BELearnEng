@@ -54,7 +54,7 @@ public class OrderController {
     @GetMapping("/admin")
     public ResponseEntity<?> getAllOrder(HttpServletRequest request ) {
         try {
-            List<OrderRequest> result = orderService.getAllOrder();
+            List<OrderResponse> result = orderService.getAllOrder();
             return ResponseEntity.ok(result);
         }catch (Exception e){
             return ResponseEntity.badRequest().body(e.getMessage());

@@ -36,7 +36,7 @@ public class WebSecurityConfig {
                             .requestMatchers(
                                     String.format("%s/user/register", apiPrefix),
                                     String.format("%s/user/login", apiPrefix),
-                                    String.format("%s/search", apiPrefix),
+                                    String.format("%s/search/**", apiPrefix),
                                     String.format("%s/user/activation/**", apiPrefix)
                             ).permitAll()
                             .requestMatchers(GET, PUBLIC_GET_ENDPOINTS).permitAll()
@@ -81,6 +81,8 @@ public class WebSecurityConfig {
                             .requestMatchers(GET,  "api/order").hasAnyRole("ADMIN","STAFF")
                             .requestMatchers(GET,  "api/order/admin").hasAnyRole("ADMIN","STAFF")
                             .requestMatchers(POST,  "api/order/**").hasAnyRole("ADMIN","USER","STAFF")
+                            //search
+//                            .requestMatchers(GET,  "api/search/home/size-show").hasAnyRole("ADMIN","STAFF")
                             .anyRequest().authenticated();
                 });
         return http.build();

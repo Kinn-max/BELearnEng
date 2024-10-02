@@ -26,6 +26,7 @@ import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 import java.util.Random;
 
@@ -106,9 +107,7 @@ public class UserService implements IUserService {
 
     @Override
     public List<UserResponse> getAllUsers() throws Exception {
-        RoleEntity roleEntity1 = roleRepository.findById(2L).get();
-        RoleEntity roleEntity2 = roleRepository.findById(3L).get();
-        List<UserEntity> users = userRepository.findByRoleEntityOrRoleEntity(roleEntity1, roleEntity2);
+        List<UserEntity> users = userRepository.findByRoleEntityNot();
         List<UserResponse> userResponseList = new ArrayList<>();
         for (UserEntity user : users) {
             UserResponse userResponse = modelMapper.map(user, UserResponse.class);
@@ -116,6 +115,7 @@ public class UserService implements IUserService {
         }
         return userResponseList;
     }
+
 
     @Override
     public void setStatusUser(Long id) throws Exception {

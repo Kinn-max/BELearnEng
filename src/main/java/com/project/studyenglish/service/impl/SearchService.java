@@ -1,6 +1,9 @@
 package com.project.studyenglish.service.impl;
 
 import com.project.studyenglish.dto.SearchResult;
+import com.project.studyenglish.dto.response.SizeOfCategoryResponse;
+import com.project.studyenglish.models.CategoryEntity;
+import com.project.studyenglish.repository.CategoryRepository;
 import com.project.studyenglish.repository.SearchRepository;
 import com.project.studyenglish.repository.custom.SearchCustomRepository;
 import com.project.studyenglish.service.ISearchService;
@@ -14,7 +17,8 @@ import java.util.List;
 public class SearchService implements ISearchService {
     @Autowired
     private SearchCustomRepository searchRepository;
-
+    @Autowired
+    private CategoryRepository categoryRepository;
     @Override
     public List<SearchResult> searchByName(String name) {
         List<Object[]> results = searchRepository.searchByName(name);
@@ -36,5 +40,19 @@ public class SearchService implements ISearchService {
             searchResults.add(searchResult);
         }
         return searchResults;
+    }
+
+    @Override
+    public SizeOfCategoryResponse getSize() {
+       SizeOfCategoryResponse sizeOfCategoryResponse = new SizeOfCategoryResponse();
+        int topic = categoryRepository.countByCodeName("VOCABULARY");
+        int exam = categoryRepository.countByCodeName("EXAM");
+        int grammar = categoryRepository.countByCodeName("GRAMMAR");
+        int product = categoryRepository.countByCodeName("PRODUCT");
+        sizeOfCategoryResponse.setSizeExam(exam);
+        sizeOfCategoryResponse.setSizeGrammar(grammar);
+        sizeOfCategoryResponse.setSizeProduct(product);
+        sizeOfCategoryResponse.setSizeTopic(topic);
+        return sizeOfCategoryResponse ;
     }
 }

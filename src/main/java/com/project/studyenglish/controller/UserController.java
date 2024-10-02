@@ -63,9 +63,10 @@ public class UserController {
         }
     }
     @GetMapping("")
-    public ResponseEntity<?> getAllUsers() {
+    public ResponseEntity<?> getAllUsers(HttpServletRequest request) {
         try {
-            List<UserResponse> userResponseList =userService.getAllUsers();
+
+            List<UserResponse> userResponseList = userService.getAllUsers();
             Map<String, List> response = new HashMap<>();
             response.put("data", userResponseList);
             return ResponseEntity.ok(response);

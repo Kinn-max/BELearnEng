@@ -19,6 +19,7 @@ import org.modelmapper.ModelMapper;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
+import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.ZoneId;
 import java.time.format.DateTimeFormatter;
@@ -86,22 +87,34 @@ public class OrderService implements IOrderService {
     @Override
     public void setStatusOfOrder(String name, Long id) {
         OrderEntity orderEntity = orderRepository.findById(id).get();
+        if(name.equals("DELIVERING")){
+            LocalDate date = LocalDate.now();
+            orderEntity.setShippingDate(date);
+        }
         orderEntity.setStatus(name);
-
+        orderRepository.save(orderEntity);
     }
 
     @Override
-    public List<OrderRequest> getAllOrder() {
+    public List<OrderResponse> getAllOrder() {
         List<OrderEntity> orderEntityList = orderRepository.findByActiveTrue();
-        List<OrderRequest> orderRequestList = new ArrayList<>();
+        List<OrderResponse>orderResponseList = new ArrayList<>();
         for (OrderEntity orderEntity : orderEntityList) {
-            OrderRequest orderRequest = modelMapper.map(orderEntity, OrderRequest.class);
+            OrderResponse orderResponse = modelMapper.map(orderEntity, OrderResponse.class);
             Map<String,String> type = StatusDelivery.type();
             String displayValue = type.get(orderEntity.getStatus());
-            orderRequest.setStatus(displayValue);
-            orderRequestList.add(orderRequest);
+            orderResponse.setStatus(displayValue);
+            //convert to orderdetailresponse
+            List<OrderDetailEntity> list = orderEntity.getOrderDetailEntityList();
+            List<OrderDetailResponse> orderDetailResponseList = new ArrayList<>();
+            for (OrderDetailEntity orderDetailEntity : list) {
+                OrderDetailResponse orderDetailResponse = orderDetailConverter.toOrderDetailRequest(orderDetailEntity);
+                orderDetailResponseList.add(orderDetailResponse);
+            }
+            orderResponse.setOrderDetailEntityList(orderDetailResponseList);
+            orderResponseList.add(orderResponse);
         }
-        return orderRequestList;
+        return orderResponseList;
     }
 
     @Override

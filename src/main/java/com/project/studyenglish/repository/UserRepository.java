@@ -3,6 +3,8 @@ package com.project.studyenglish.repository;
 import com.project.studyenglish.models.RoleEntity;
 import com.project.studyenglish.models.UserEntity;
 import org.springframework.data.jpa.repository.JpaRepository;
+import org.springframework.data.jpa.repository.Query;
+import org.springframework.data.repository.query.Param;
 import org.springframework.stereotype.Repository;
 
 import java.util.List;
@@ -15,6 +17,9 @@ public interface UserRepository extends JpaRepository<UserEntity, Long>{
     Optional<UserEntity> findByEmail(String email);;
     List<UserEntity> findByRoleEntity(RoleEntity roleEntity);
     List<UserEntity> findByFullNameContainingIgnoreCaseOrEmailContainingIgnoreCase(String name, String keyword);
-    List<UserEntity> findByRoleEntityOrRoleEntity(RoleEntity roleEntity1, RoleEntity roleEntity2);
+    List<UserEntity> findByRoleEntityIn(List<RoleEntity> roleEntities);
+    @Query("SELECT u FROM UserEntity u WHERE u.roleEntity.id != 1")
+    List<UserEntity> findByRoleEntityNot();
+
 
 }

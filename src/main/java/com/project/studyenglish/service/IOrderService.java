@@ -11,6 +11,6 @@ public interface IOrderService {
     OrderEntity addOrder(OrderRequest order);
     List<OrderRequest> getAllOrderOfWaiting();
     void setStatusOfOrder(String name, Long id);
-    List<OrderRequest> getAllOrder();
+    List<OrderResponse> getAllOrder();
     List<OrderResponse> getAllOrderedByUserId(Long id);
 }
