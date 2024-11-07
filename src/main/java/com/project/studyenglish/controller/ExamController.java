@@ -30,8 +30,8 @@ public class ExamController {
        return ResponseEntity.ok(examDtoList);
     }
     @GetMapping(value = "/by-category/{id}")
-    public ResponseEntity<List<ExamDto>> getAllExamByCategoryId(@PathVariable Long id) {
-        List<ExamDto> examDtoList = examService.getAllExamByCategory(id);
+    public ResponseEntity<List<ExamDto>> getAllExamByCategoryId(@PathVariable Long id ,@RequestParam(defaultValue = "0") int page, @RequestParam(defaultValue = "5") int size) {
+        List<ExamDto> examDtoList = examService.getAllExamByCategory(id,size,page);
         return ResponseEntity.ok(examDtoList);
     }
     @PostMapping("")

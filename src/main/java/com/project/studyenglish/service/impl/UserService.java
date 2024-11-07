@@ -70,13 +70,14 @@ public class UserService implements IUserService {
         Random random = new Random();
         int randomNumber = 1000 + random.nextInt(9000);
         newUser.setActivationCode(randomNumber);
+
         try {
             emailSend.sendEmail(newUser.getEmail(), newUser.getActivationCode());
         }
         catch (Exception e){
             throw new DataNotFoundException("Email is incorrect");
         }
-        return userRepository.save(newUser);
+        return  userRepository.save(newUser);
     }
 
     @Override
@@ -99,7 +100,6 @@ public class UserService implements IUserService {
                 email, password,
                 existingUser.getAuthorities()
         );
-
         //authenticate with Java Spring security
         authenticationManager.authenticate(authenticationToken);
         return jwtTokenUtil.generateToken(existingUser);

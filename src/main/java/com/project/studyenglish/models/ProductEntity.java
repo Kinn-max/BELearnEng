@@ -39,4 +39,7 @@ public class ProductEntity {
 
     @OneToMany(mappedBy = "productEntity", fetch = FetchType.LAZY)
     private List<OrderDetailEntity> orderDetailEntityList = new ArrayList<>();
+
+    @ManyToMany(mappedBy = "ratedProduct")
+    private List<UserEntity> usersRated = new ArrayList<>();
 }

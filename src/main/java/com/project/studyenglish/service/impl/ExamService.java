@@ -13,6 +13,9 @@ import com.project.studyenglish.repository.ExamRepository;
 import com.project.studyenglish.service.IExamService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.dao.DataIntegrityViolationException;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 
 import java.util.ArrayList;
@@ -39,10 +42,11 @@ public class ExamService implements IExamService {
     }
 
     @Override
-    public List<ExamDto> getAllExamByCategory(Long id) {
-        List<ExamEntity> examEntityList = examRepository.findByCategoryEntity_Id(id);
+    public List<ExamDto> getAllExamByCategory(Long id ,int page, int size) {
+        Pageable pageable = PageRequest.of(page, size);
+        Page<ExamEntity> examEntityList = examRepository.findByCategoryEntity_Id(id,pageable);
         List<ExamDto> examDtoList = new ArrayList<>();
-        for (ExamEntity examEntity : examEntityList) {
+        for (ExamEntity examEntity : examEntityList.getContent()) {
             ExamDto examDto = examConverter.toExam(examEntity);
             examDtoList.add(examDto);
         }
@@ -51,7 +55,7 @@ public class ExamService implements IExamService {
 
     @Override
     public List<ExamDto> getAllExamByCategoryAndStatus(Long id) {
-        List<ExamEntity> examEntityList = examRepository.findByCategoryEntity_Id(id);
+        List <ExamEntity> examEntityList = examRepository.findByCategoryEntity_Id(id);
         List<ExamDto> examDtoList = new ArrayList<>();
         for (ExamEntity examEntity : examEntityList) {
             if(examEntity.getCategoryEntity().getStatus() == true){

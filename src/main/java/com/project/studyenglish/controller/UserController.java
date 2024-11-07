@@ -45,6 +45,7 @@ public class UserController {
             UserEntity userEntity = userService.createUser(userRequest);
             Map<String, Long> response = new HashMap<>();
             response.put("id", userEntity.getId());
+
             return ResponseEntity.ok(response);
         }catch (Exception e) {
             return ResponseEntity.badRequest().body(e.getMessage());

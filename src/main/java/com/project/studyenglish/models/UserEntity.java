@@ -51,10 +51,11 @@ public class UserEntity  extends BaseEntity implements UserDetails {
     @Column(name = "image",columnDefinition = "LONGTEXT")
     @Lob
     private String image;
+
     @Column(name = "google_account_id")
     private int googleAccountId;
 
-    @OneToMany(mappedBy = "userEntity", fetch = FetchType.LAZY)
+    @OneToMany(mappedBy = "userEntity", fetch = FetchType.LAZY, cascade = CascadeType.ALL)
     private List<OrderEntity> orderEntityList = new ArrayList<>();
 
     @ManyToOne
@@ -67,6 +68,13 @@ public class UserEntity  extends BaseEntity implements UserDetails {
         authorityList.add(new SimpleGrantedAuthority("ROLE_"+getRoleEntity().getName().toUpperCase()));
         return authorityList;
     }
+    @ManyToMany
+    @JoinTable(
+            name = "user_product_rating",
+            joinColumns = @JoinColumn(name = "user_id"),
+            inverseJoinColumns = @JoinColumn(name = "product_id")
+    )
+    private List<ProductEntity> ratedProduct = new ArrayList<>();
 
     @Override
     public String getPassword() {

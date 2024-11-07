@@ -32,18 +32,19 @@ public class CategoryEntity extends BaseEntity {
     @Column(name = "code_name")
     private String codeName;
 
-    @Column(name = "image")
+    @Column(name = "image",columnDefinition = "LONGTEXT")
+    @Lob
     private String image;
 
-    @OneToMany(mappedBy = "categoryEntity", fetch = FetchType.LAZY)
+    @OneToMany(mappedBy = "categoryEntity", fetch = FetchType.LAZY,cascade = CascadeType.ALL)
     private List<VocabularyEntity> vocabularyEntityList = new ArrayList<>();
 
-    @OneToMany(mappedBy = "categoryEntity", fetch = FetchType.LAZY)
+    @OneToMany(mappedBy = "categoryEntity", fetch = FetchType.LAZY,cascade = CascadeType.ALL)
     private List<ExamEntity> examEntityList = new ArrayList<>();
 
-    @OneToMany(mappedBy = "categoryEntity", fetch = FetchType.LAZY)
+    @OneToMany(mappedBy = "categoryEntity", fetch = FetchType.LAZY,cascade = CascadeType.ALL)
     private List<GrammarEntity> grammarEntityList = new ArrayList<>();
 
-    @OneToMany(mappedBy = "categoryEntity", fetch = FetchType.LAZY)
+    @OneToMany(mappedBy = "categoryEntity", fetch = FetchType.LAZY,cascade = CascadeType.ALL)
     private List<ProductEntity> productEntityList = new ArrayList<>();
 }

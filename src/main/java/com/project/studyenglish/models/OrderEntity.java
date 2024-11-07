@@ -62,7 +62,7 @@ public class OrderEntity {
     @Column(name = "active")
     private Boolean active;
 
-    @OneToMany(mappedBy = "orderEntity", fetch = FetchType.LAZY)
+    @OneToMany(mappedBy = "orderEntity", fetch = FetchType.LAZY,cascade = CascadeType.ALL)
     private List<OrderDetailEntity> orderDetailEntityList = new ArrayList<>();
 
     @ManyToOne
