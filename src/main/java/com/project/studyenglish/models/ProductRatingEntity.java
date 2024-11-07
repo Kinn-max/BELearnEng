@@ -2,18 +2,18 @@ package com.project.studyenglish.models;
 
 
 import jakarta.persistence.*;
-import lombok.AllArgsConstructor;
-import lombok.Getter;
-import lombok.NoArgsConstructor;
-import lombok.Setter;
+import lombok.*;
+
+import java.util.Date;
 
 @Entity
 @Getter
 @Setter
 @AllArgsConstructor
 @NoArgsConstructor
+@Builder
 @Table(name = "user_product_rating")
-public class UserProductRating {
+public class ProductRatingEntity {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
@@ -28,4 +28,5 @@ public class UserProductRating {
 
     private int rating;
     private String review;
+    private Date commentDate;
 }
