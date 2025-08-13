@@ -53,7 +53,7 @@ public class UserEntity  extends BaseEntity implements UserDetails {
     private String image;
 
     @Column(name = "google_account_id")
-    private int googleAccountId;
+    private String googleAccountId;
 
     @OneToMany(mappedBy = "userEntity", fetch = FetchType.LAZY, cascade = CascadeType.ALL)
     private List<OrderEntity> orderEntityList = new ArrayList<>();

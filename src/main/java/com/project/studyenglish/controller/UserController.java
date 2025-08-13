@@ -28,6 +28,17 @@ public class UserController {
     private JwtTokenUtil jwtTokenUtil;
     @Autowired
     private IUserService userService;
+    @PostMapping("/outbound/authentication")
+    ResponseEntity<?> outboundAuthentication(@RequestParam("code") String code) {
+        try {
+            var result = userService.outboundAuthenticate(code);
+            Map<String, String> response = new HashMap<>();
+            response.put("token", result);
+            return ResponseEntity.ok(response);
+        }catch (Exception e){
+            return ResponseEntity.badRequest().body(e.getMessage());
+        }
+    }
     @PostMapping("/register")
     public ResponseEntity<?> register(@Valid @RequestBody UserRequest userRequest,
                                       BindingResult result) {

@@ -19,7 +19,7 @@ spring:
   jpa:
     show-sql: true
     hibernate:
-      ddl-auto: none
+      ddl-auto: update
     properties:
       hibernate:
         dialect: org.hibernate.dialect.MySQL8Dialect
@@ -44,6 +44,11 @@ spring:
       max-request-size: 10MB
       enabled: true
 
+outbound:
+  identity:
+    client-id: "11334067343-h0mrg0kf9lum5j9qoeg7vp5n10k6sh1u.apps.googleusercontent.com"
+    client-secret: "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"
+    redirect-uri: "http://localhost:3000/authenticate"
 
 api:
   prefix: api

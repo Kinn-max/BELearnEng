@@ -19,4 +19,5 @@ public interface IUserService {
     void updateUser(Long id, UserDto userDto) throws Exception;
     void setRoleOfUser(Long role,Long id) throws Exception;
     boolean activationAccount(Long role,Long id) throws Exception;
+    String outboundAuthenticate(String code) throws Exception;
 }

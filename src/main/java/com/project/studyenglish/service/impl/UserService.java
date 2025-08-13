@@ -6,33 +6,37 @@ import com.project.studyenglish.customexceptions.DataNotFoundException;
 import com.project.studyenglish.customexceptions.InvalidParamException;
 import com.project.studyenglish.customexceptions.PermissionDenyException;
 import com.project.studyenglish.dto.UserDto;
+import com.project.studyenglish.dto.request.ExchangeTokenRequest;
 import com.project.studyenglish.dto.request.UserRequest;
 import com.project.studyenglish.dto.response.UserResponse;
-import com.project.studyenglish.models.CategoryEntity;
 import com.project.studyenglish.models.RoleEntity;
 import com.project.studyenglish.models.UserEntity;
+import com.project.studyenglish.repository.httpclient.OutboundIdentityClient;
 import com.project.studyenglish.repository.RoleRepository;
 import com.project.studyenglish.repository.UserRepository;
+import com.project.studyenglish.repository.httpclient.OutboundUserClient;
 import com.project.studyenglish.service.IUserService;
 import com.project.studyenglish.util.CheckPassWord;
 import com.project.studyenglish.util.Email;
 import lombok.RequiredArgsConstructor;
+import lombok.experimental.NonFinal;
+import lombok.extern.slf4j.Slf4j;
 import org.modelmapper.ModelMapper;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.BadCredentialsException;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.List;
-import java.util.Random;
+import javax.management.relation.Role;
+import java.util.*;
 
 
 @Service
 @RequiredArgsConstructor
+@Slf4j
 public class UserService implements IUserService {
     private final UserRepository userRepository;
     private final RoleRepository roleRepository;
@@ -40,10 +44,23 @@ public class UserService implements IUserService {
     private final JwtTokenUtil jwtTokenUtil;
     private final AuthenticationManager authenticationManager;
     private final ModelMapper modelMapper;
+    private final OutboundIdentityClient outboundIdentityClient;
+    private final OutboundUserClient outboundUserClient;
     @Autowired
     private UserConverter userConverter;
     @Autowired
     private Email emailSend;
+    @NonFinal
+    @Value("${outbound.identity.client-id}")
+    protected  String CLIENT_ID ;
+    @NonFinal
+    @Value("${outbound.identity.client-secret}")
+    protected  String CLIENT_SECRET;
+    @NonFinal
+    @Value("${outbound.identity.redirect-uri}")
+    protected  String REDIRECT_URI ;
+    @NonFinal
+    protected final String GRANT_TYPE = "authorization_code";
     @Override
     public UserEntity createUser(UserRequest user) throws Exception  {
         String email = user.getEmail();
@@ -90,8 +107,7 @@ public class UserService implements IUserService {
             throw new DataNotFoundException("You have not activated your account.");
         }
         //check password
-        if (existingUser.getFacebookAccountId() == 0
-                && existingUser.getGoogleAccountId() == 0) {
+        if (existingUser.getFacebookAccountId() == 0) {
             if(!passwordEncoder.matches(password, existingUser.getPassword())) {
                 throw new BadCredentialsException("Wrong email or password");
             }
@@ -178,6 +194,43 @@ public class UserService implements IUserService {
             return false;
         }
         return true;
+    }
+
+    @Override
+    public String outboundAuthenticate(String code) throws Exception {
+        var response = outboundIdentityClient.exchangeToken(
+                ExchangeTokenRequest.builder()
+                        .code(code)
+                        .clientId(CLIENT_ID)
+                        .clientSecret(CLIENT_SECRET)
+                        .redirectUri(REDIRECT_URI)
+                        .grantType(GRANT_TYPE)
+                        .build()
+        );
+        log.info("Outbound authenticate response: {}", response);
+        var userInfo = outboundUserClient.getUserInfo("json", response.getAccessToken());
+        log.info("Outbound user info: {}", userInfo);
+        RoleEntity role =roleRepository.findById(2L)
+                .orElseThrow(() -> new Exception("Role not found"));
+
+        Optional<UserEntity> optionalUser = userRepository.findByEmail(userInfo.getEmail());
+        UserEntity user;
+        if (optionalUser.isPresent()) {
+            user = optionalUser.get();
+        } else {
+            user = UserEntity.builder()
+                    .googleAccountId(userInfo.getId())
+                    .email(userInfo.getEmail())
+                    .fullName(userInfo.getName())
+                    .active(true)
+                    .activationCode(0000)
+                    .image(userInfo.getPicture())
+                    .roleEntity(role)
+                    .password(passwordEncoder.encode("hikien"))
+                    .build();
+            userRepository.save(user);
+        }
+        return response.getAccessToken();
     }
 
 }

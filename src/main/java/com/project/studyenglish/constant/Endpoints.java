@@ -12,7 +12,8 @@ public class Endpoints {
             "/api/grammar/**"
     };
     public  static  final  String[] PUBLIC_POST_ENDPOINTS = {
-            "/api/user/login"
+            "/api/user/login",
+            "/api/user/outbound/authentication"
     };
 
 
