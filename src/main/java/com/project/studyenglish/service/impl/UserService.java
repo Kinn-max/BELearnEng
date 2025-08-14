@@ -3,10 +3,10 @@ package com.project.studyenglish.service.impl;
 import com.project.studyenglish.components.JwtTokenUtil;
 import com.project.studyenglish.converter.UserConverter;
 import com.project.studyenglish.customexceptions.DataNotFoundException;
-import com.project.studyenglish.customexceptions.InvalidParamException;
 import com.project.studyenglish.customexceptions.PermissionDenyException;
 import com.project.studyenglish.dto.UserDto;
 import com.project.studyenglish.dto.request.ExchangeTokenRequest;
+import com.project.studyenglish.dto.request.PasswordCreationRequest;
 import com.project.studyenglish.dto.request.UserRequest;
 import com.project.studyenglish.dto.response.UserResponse;
 import com.project.studyenglish.models.RoleEntity;
@@ -16,7 +16,6 @@ import com.project.studyenglish.repository.RoleRepository;
 import com.project.studyenglish.repository.UserRepository;
 import com.project.studyenglish.repository.httpclient.OutboundUserClient;
 import com.project.studyenglish.service.IUserService;
-import com.project.studyenglish.util.CheckPassWord;
 import com.project.studyenglish.util.Email;
 import lombok.RequiredArgsConstructor;
 import lombok.experimental.NonFinal;
@@ -24,13 +23,15 @@ import lombok.extern.slf4j.Slf4j;
 import org.modelmapper.ModelMapper;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.context.ApplicationContextException;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.BadCredentialsException;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
+import org.springframework.util.StringUtils;
 
-import javax.management.relation.Role;
 import java.util.*;
 
 
@@ -71,10 +72,6 @@ public class UserService implements IUserService {
                 .orElseThrow(() -> new Exception("Role not found"));
         if(role.getName().toUpperCase().equals("ADMIN")){
             throw new PermissionDenyException("Admin role cannot be created");
-        }
-        boolean checkPass = CheckPassWord.passwordCheck(user.getPassword());
-        if(!checkPass){
-            throw new InvalidParamException("Invalid password ");
         }
         UserEntity newUser = UserEntity.builder()
                 .fullName(user.getFullName())
@@ -209,7 +206,6 @@ public class UserService implements IUserService {
         );
         log.info("Outbound authenticate response: {}", response);
         var userInfo = outboundUserClient.getUserInfo("json", response.getAccessToken());
-        log.info("Outbound user info: {}", userInfo);
         RoleEntity role =roleRepository.findById(2L)
                 .orElseThrow(() -> new Exception("Role not found"));
 
@@ -223,14 +219,23 @@ public class UserService implements IUserService {
                     .email(userInfo.getEmail())
                     .fullName(userInfo.getName())
                     .active(true)
-                    .activationCode(0000)
+                    .activationCode(9999)
                     .image(userInfo.getPicture())
                     .roleEntity(role)
-                    .password(passwordEncoder.encode("hikien"))
                     .build();
             userRepository.save(user);
         }
         return response.getAccessToken();
+    }
+    public void updatePassword(PasswordCreationRequest request) {
+        var context = SecurityContextHolder.getContext();
+        String name = context.getAuthentication().getName();
+        UserEntity user = userRepository.findByEmail(name).orElseThrow(() -> new ApplicationContextException("User not found"));
+        if(StringUtils.hasText(user.getPassword())){
+            throw new ApplicationContextException("Password already taken");
+        }
+        user.setPassword(passwordEncoder.encode(request.getPassword()));
+        userRepository.save(user);
     }
 
 }

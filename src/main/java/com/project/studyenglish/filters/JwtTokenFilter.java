@@ -82,6 +82,7 @@ public class JwtTokenFilter extends OncePerRequestFilter {
                 Pair.of(String.format("%s/product-rating/**", apiPrefix), "POST"),
                 //auth google
                 Pair.of(String.format("%s/user/outbound/authentication", apiPrefix), "POST")
+
         );
         for(Pair<String, String> bypassToken: bypassTokens) {
             if (request.getServletPath().contains(bypassToken.getFirst()) &&

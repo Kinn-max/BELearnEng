@@ -2,6 +2,7 @@ package com.project.studyenglish.controller;
 
 import com.project.studyenglish.components.JwtTokenUtil;
 import com.project.studyenglish.dto.UserDto;
+import com.project.studyenglish.dto.request.PasswordCreationRequest;
 import com.project.studyenglish.dto.request.UserLogin;
 import com.project.studyenglish.dto.request.UserRequest;
 import com.project.studyenglish.dto.response.UserResponse;
@@ -39,6 +40,19 @@ public class UserController {
             return ResponseEntity.badRequest().body(e.getMessage());
         }
     }
+    @PostMapping("/create-password")
+    ResponseEntity<?> createPassword(@RequestBody @Valid PasswordCreationRequest request,  BindingResult result) {
+        if(result.hasErrors()){
+            List<String> errorMessages = result.getFieldErrors()
+                    .stream()
+                    .map(FieldError::getDefaultMessage)
+                    .collect(Collectors.toList());
+            return ResponseEntity.badRequest().body(errorMessages);
+        }
+        userService.updatePassword(request);
+        return ResponseEntity.ok("Password updated");
+    }
+
     @PostMapping("/register")
     public ResponseEntity<?> register(@Valid @RequestBody UserRequest userRequest,
                                       BindingResult result) {

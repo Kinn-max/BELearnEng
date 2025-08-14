@@ -65,6 +65,7 @@ public class WebSecurityConfig {
                             .requestMatchers(DELETE,  "api/grammar/**").hasRole("ADMIN")
                             //user
                             .requestMatchers(GET,  "api/user").hasRole("ADMIN")
+                            .requestMatchers(POST,  "api/user/**").hasRole("USER")
                             .requestMatchers(DELETE,  "api/user/**").hasRole("ADMIN")
                             .requestMatchers(POST,  "api/user/status/**").hasRole("ADMIN")
                             .requestMatchers(GET,  "api/user/search/**").hasRole("ADMIN")
