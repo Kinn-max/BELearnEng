@@ -5,6 +5,7 @@ import com.project.studyenglish.dto.UserDto;
 import com.project.studyenglish.dto.request.PasswordCreationRequest;
 import com.project.studyenglish.dto.request.UserLogin;
 import com.project.studyenglish.dto.request.UserRequest;
+import com.project.studyenglish.dto.response.LoginResponse;
 import com.project.studyenglish.dto.response.UserResponse;
 import com.project.studyenglish.models.UserEntity;
 import com.project.studyenglish.service.IUserService;
@@ -32,10 +33,9 @@ public class UserController {
     @PostMapping("/outbound/authentication")
     ResponseEntity<?> outboundAuthentication(@RequestParam("code") String code) {
         try {
-            var result = userService.outboundAuthenticate(code);
-            Map<String, String> response = new HashMap<>();
-            response.put("token", result);
-            return ResponseEntity.ok(response);
+            LoginResponse result = userService.outboundAuthenticate(code);
+
+            return ResponseEntity.ok(result);
         }catch (Exception e){
             return ResponseEntity.badRequest().body(e.getMessage());
         }
@@ -185,18 +185,26 @@ public class UserController {
             return ResponseEntity.badRequest().body(e.getMessage());
         }
     }
-    @PostMapping("/activation/{id}/{code}")
-    public ResponseEntity<?> activationAccount(@PathVariable("id") Long id,@PathVariable("code") Long code, HttpServletRequest request) {
+    @PostMapping("/activation/{userId}/{code}")
+    public ResponseEntity<?> activationAccount(
+            @PathVariable("userId") Long userId,
+            @PathVariable("code") Long code) {
         try {
-             boolean result =  userService.activationAccount(id,code);
-             if(result){
-                 return ResponseEntity.ok("Activation Success!");
-             }
-             return ResponseEntity.badRequest().body("Activation Failed!");
+            boolean result = userService.activationAccount(userId, code);
+            Map<String, String> response = new HashMap<>();
+            if (result) {
+                response.put("message", "Activation Success!");
+                return ResponseEntity.ok(response);
+            } else {
+                response.put("message", "Activation Failed!");
+                return ResponseEntity.badRequest().body(response);
+            }
         } catch (Exception e) {
-            return ResponseEntity.badRequest().body(e.getMessage());
+            Map<String, String> error = new HashMap<>();
+            error.put("message", e.getMessage());
+            return ResponseEntity.badRequest().body(error);
         }
-        }
+    }
 
 
 

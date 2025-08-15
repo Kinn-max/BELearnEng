@@ -8,6 +8,7 @@ import com.project.studyenglish.dto.UserDto;
 import com.project.studyenglish.dto.request.ExchangeTokenRequest;
 import com.project.studyenglish.dto.request.PasswordCreationRequest;
 import com.project.studyenglish.dto.request.UserRequest;
+import com.project.studyenglish.dto.response.LoginResponse;
 import com.project.studyenglish.dto.response.UserResponse;
 import com.project.studyenglish.models.RoleEntity;
 import com.project.studyenglish.models.UserEntity;
@@ -179,22 +180,24 @@ public class UserService implements IUserService {
     }
 
     @Override
-    public boolean activationAccount(Long id, Long code) throws Exception {
-        UserEntity userEntity = userRepository.findById(id).orElseThrow(() -> new Exception("User not found"));
-        if(userEntity.isActive()){
-            return  true;
+    public boolean activationAccount(Long userId, Long code) throws Exception {
+        UserEntity userEntity = userRepository.findById(userId)
+                .orElseThrow(() -> new Exception("User not found"));
+
+        if (userEntity.isActive()) {
+            return true;
         }
-        if(userEntity.getActivationCode() == code){
+
+        if (userEntity.getActivationCode() == code) {
             userEntity.setActive(true);
             userRepository.save(userEntity);
-        }else {
-            return false;
+            return true;
         }
-        return true;
+        return false;
     }
 
     @Override
-    public String outboundAuthenticate(String code) throws Exception {
+    public LoginResponse outboundAuthenticate(String code) throws Exception {
         var response = outboundIdentityClient.exchangeToken(
                 ExchangeTokenRequest.builder()
                         .code(code)
@@ -225,7 +228,15 @@ public class UserService implements IUserService {
                     .build();
             userRepository.save(user);
         }
-        return response.getAccessToken();
+
+        LoginResponse loginResponse =  LoginResponse.builder()
+                .userId(user.getId())
+                .token( jwtTokenUtil.generateToken(user))
+                .activation(user.isActive())
+                .hasPassword(StringUtils.hasText(user.getPassword()))
+                .firstLogin(!user.isActive() || !StringUtils.hasText(user.getPassword()))
+                .build();
+        return loginResponse;
     }
     public void updatePassword(PasswordCreationRequest request) {
         var context = SecurityContextHolder.getContext();

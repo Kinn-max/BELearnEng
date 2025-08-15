@@ -30,8 +30,9 @@ public class UserEntity  extends BaseEntity implements UserDetails {
     @Column(name = "email")
     private String email;
 
-    @Column(name = "password", length = 200, nullable = false)
+    @Column(name = "password", length = 200)
     private String password;
+
 
     @Column(name = "phone_number", length = 10)
     private String phoneNumber;
@@ -75,6 +76,7 @@ public class UserEntity  extends BaseEntity implements UserDetails {
             inverseJoinColumns = @JoinColumn(name = "product_id")
     )
     private List<ProductEntity> ratedProduct = new ArrayList<>();
+
 
     @Override
     public String getPassword() {
