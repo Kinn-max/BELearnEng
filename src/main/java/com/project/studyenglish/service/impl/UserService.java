@@ -3,11 +3,14 @@ package com.project.studyenglish.service.impl;
 import com.project.studyenglish.components.JwtTokenUtil;
 import com.project.studyenglish.converter.UserConverter;
 import com.project.studyenglish.customexceptions.DataNotFoundException;
+import com.project.studyenglish.customexceptions.InvalidParamException;
 import com.project.studyenglish.customexceptions.PermissionDenyException;
 import com.project.studyenglish.dto.UserDto;
 import com.project.studyenglish.dto.request.ExchangeTokenRequest;
 import com.project.studyenglish.dto.request.PasswordCreationRequest;
 import com.project.studyenglish.dto.request.UserRequest;
+import com.project.studyenglish.dto.request.UserUpdateFullName;
+import com.project.studyenglish.dto.response.ApiMessageResponse;
 import com.project.studyenglish.dto.response.LoginResponse;
 import com.project.studyenglish.dto.response.UserResponse;
 import com.project.studyenglish.models.RoleEntity;
@@ -16,8 +19,8 @@ import com.project.studyenglish.repository.httpclient.OutboundIdentityClient;
 import com.project.studyenglish.repository.RoleRepository;
 import com.project.studyenglish.repository.UserRepository;
 import com.project.studyenglish.repository.httpclient.OutboundUserClient;
+import com.project.studyenglish.service.IEmailService;
 import com.project.studyenglish.service.IUserService;
-import com.project.studyenglish.util.Email;
 import lombok.RequiredArgsConstructor;
 import lombok.experimental.NonFinal;
 import lombok.extern.slf4j.Slf4j;
@@ -25,6 +28,8 @@ import org.modelmapper.ModelMapper;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.ApplicationContextException;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.BadCredentialsException;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
@@ -51,7 +56,7 @@ public class UserService implements IUserService {
     @Autowired
     private UserConverter userConverter;
     @Autowired
-    private Email emailSend;
+    private IEmailService emailService;
     @NonFinal
     @Value("${outbound.identity.client-id}")
     protected  String CLIENT_ID ;
@@ -64,60 +69,73 @@ public class UserService implements IUserService {
     @NonFinal
     protected final String GRANT_TYPE = "authorization_code";
     @Override
-    public UserEntity createUser(UserRequest user) throws Exception  {
-        String email = user.getEmail();
-        if(userRepository.existsByEmail(email)){
+    public UserEntity createUser(UserRequest user) throws PermissionDenyException {
+
+        if (userRepository.existsByEmail(user.getEmail())) {
             throw new DataNotFoundException("Email already exists");
         }
-        RoleEntity role =roleRepository.findById(user.getRoleId())
-                .orElseThrow(() -> new Exception("Role not found"));
-        if(role.getName().toUpperCase().equals("ADMIN")){
+
+        RoleEntity role = roleRepository.findById(user.getRoleId())
+                .orElseThrow(() -> new DataNotFoundException("Role not found"));
+
+        if ("ADMIN".equalsIgnoreCase(role.getName())) {
             throw new PermissionDenyException("Admin role cannot be created");
         }
-        UserEntity newUser = UserEntity.builder()
-                .fullName(user.getFullName())
-                .password(user.getPassword())
-                .email(user.getEmail())
-                .build();
-        newUser.setRoleEntity(role);
-        String encryptedPassword = user.getPassword();
-        newUser.setPassword(passwordEncoder.encode(encryptedPassword));
-        Random random = new Random();
-        int randomNumber = 1000 + random.nextInt(9000);
-        newUser.setActivationCode(randomNumber);
 
-        try {
-            emailSend.sendEmail(newUser.getEmail(), newUser.getActivationCode());
-        }
-        catch (Exception e){
-            throw new DataNotFoundException("Email is incorrect");
-        }
-        return  userRepository.save(newUser);
+        String encryptedPassword = passwordEncoder.encode(user.getPassword());
+
+        UserEntity newUser = UserEntity.builder()
+                .email(user.getEmail())
+                .password(encryptedPassword)
+                .roleEntity(role)
+                .activationCode(generateActivationCode())
+                .build();
+
+        userRepository.save(newUser);
+
+        emailService.sendMessage(
+                "no-reply@studyenglish.com",
+                newUser.getEmail(),
+                "Activate your account",
+                "Mã kích hoạt của bạn là: " + newUser.getActivationCode()
+        );
+
+        return newUser;
     }
 
+    private int generateActivationCode() {
+        Random random = new Random();
+        return 1000 + random.nextInt(9000);
+    }
+
+
     @Override
-    public String login(String email, String password) throws Exception{
-        UserEntity existingUser = userRepository.findByEmail(email).get();
-        if(existingUser == null) {
-            throw new DataNotFoundException("Invalid phone number / password");
-        }
-        if(existingUser.isActive() == false){
-            throw new DataNotFoundException("You have not activated your account.");
-        }
-        //check password
+    public LoginResponse login(String email, String password) throws Exception {
+        UserEntity existingUser = userRepository.findByEmail(email)
+                .orElseThrow(() -> new DataNotFoundException("Invalid email / password"));
+
         if (existingUser.getFacebookAccountId() == 0) {
-            if(!passwordEncoder.matches(password, existingUser.getPassword())) {
+            if (!passwordEncoder.matches(password, existingUser.getPassword())) {
                 throw new BadCredentialsException("Wrong email or password");
             }
         }
-        UsernamePasswordAuthenticationToken authenticationToken = new UsernamePasswordAuthenticationToken(
-                email, password,
-                existingUser.getAuthorities()
-        );
-        //authenticate with Java Spring security
+
+        UsernamePasswordAuthenticationToken authenticationToken =
+                new UsernamePasswordAuthenticationToken(
+                        email, password, existingUser.getAuthorities()
+                );
         authenticationManager.authenticate(authenticationToken);
-        return jwtTokenUtil.generateToken(existingUser);
+
+        return LoginResponse.builder()
+                .userId(existingUser.getId())
+                .fullName(existingUser.getFullName())
+                .token(jwtTokenUtil.generateToken(existingUser))
+                .activation(existingUser.isActive())
+                .hasPassword(StringUtils.hasText(existingUser.getPassword()))
+                .firstLogin(!existingUser.isActive() || !StringUtils.hasText(existingUser.getPassword()))
+                .build();
     }
+
 
     @Override
     public List<UserResponse> getAllUsers() throws Exception {
@@ -231,6 +249,7 @@ public class UserService implements IUserService {
 
         LoginResponse loginResponse =  LoginResponse.builder()
                 .userId(user.getId())
+                .fullName(user.getFullName())
                 .token( jwtTokenUtil.generateToken(user))
                 .activation(user.isActive())
                 .hasPassword(StringUtils.hasText(user.getPassword()))
@@ -248,5 +267,54 @@ public class UserService implements IUserService {
         user.setPassword(passwordEncoder.encode(request.getPassword()));
         userRepository.save(user);
     }
+
+    @Override
+    public String renderToken(String email, String password) throws Exception {
+        UserEntity existingUser = userRepository.findByEmail(email)
+                .orElseThrow(() -> new DataNotFoundException("Invalid email / password"));
+
+        if (existingUser.getFacebookAccountId() == 0) {
+            if (!passwordEncoder.matches(password, existingUser.getPassword())) {
+                throw new BadCredentialsException("Wrong email or password");
+            }
+        }
+
+        UsernamePasswordAuthenticationToken authenticationToken =
+                new UsernamePasswordAuthenticationToken(
+                        email, password, existingUser.getAuthorities()
+                );
+        authenticationManager.authenticate(authenticationToken);
+
+        return jwtTokenUtil.generateToken(existingUser);
+    }
+
+
+    @Override
+    public void updateFullName(Long id, UserUpdateFullName req) {
+        UserEntity user = userRepository.findById(id)
+                .orElseThrow(() -> new DataNotFoundException("User not found with id: " + id));
+        user.setFullName(req.getFullName());
+        userRepository.save(user);
+    }
+
+    @Override
+    public ApiMessageResponse validationToken(String token) throws Exception {
+
+        if (jwtTokenUtil.isTokenExpired(token)) {
+            throw new InvalidParamException("Token expired");
+        }
+
+        Long userId = jwtTokenUtil.extractUserId(token);
+
+        UserEntity user = userRepository.findById(userId)
+                .orElseThrow(() -> new RuntimeException("User not found"));
+
+        String newToken = jwtTokenUtil.generateToken(user);
+
+        return ApiMessageResponse.builder()
+                .token(newToken)
+                .build();
+    }
+
 
 }

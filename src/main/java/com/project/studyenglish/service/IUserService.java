@@ -3,16 +3,17 @@ package com.project.studyenglish.service;
 import com.project.studyenglish.dto.UserDto;
 import com.project.studyenglish.dto.request.PasswordCreationRequest;
 import com.project.studyenglish.dto.request.UserRequest;
+import com.project.studyenglish.dto.request.UserUpdateFullName;
+import com.project.studyenglish.dto.response.ApiMessageResponse;
 import com.project.studyenglish.dto.response.LoginResponse;
 import com.project.studyenglish.dto.response.UserResponse;
 import com.project.studyenglish.models.UserEntity;
-import lombok.Lombok;
 
 import java.util.List;
 
 public interface IUserService {
     UserEntity createUser(UserRequest user) throws Exception;
-    String login(String phoneNumber, String password) throws Exception;
+    LoginResponse login(String phoneNumber, String password) throws Exception;
     List<UserResponse> getAllUsers() throws Exception;
     void setStatusUser(Long id) throws Exception;
     void deleteUser(Long id) throws Exception;
@@ -23,4 +24,7 @@ public interface IUserService {
     boolean activationAccount(Long userId,Long code) throws Exception;
     LoginResponse outboundAuthenticate(String code) throws Exception;
     void updatePassword(PasswordCreationRequest request);
+    String renderToken(String phoneNumber, String password) throws Exception;
+    void updateFullName(Long id, UserUpdateFullName req);
+    ApiMessageResponse validationToken(String token) throws Exception;
 }

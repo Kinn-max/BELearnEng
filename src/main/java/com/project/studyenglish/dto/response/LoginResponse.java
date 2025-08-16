@@ -13,4 +13,5 @@ public class LoginResponse {
     private boolean activation;
     private boolean firstLogin;
     private Long userId;
+    private String fullName;
 }

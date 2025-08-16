@@ -1,23 +1,30 @@
 package com.project.studyenglish.controller;
 
 import com.project.studyenglish.components.JwtTokenUtil;
+import com.project.studyenglish.dto.ApiError;
 import com.project.studyenglish.dto.UserDto;
 import com.project.studyenglish.dto.request.PasswordCreationRequest;
 import com.project.studyenglish.dto.request.UserLogin;
 import com.project.studyenglish.dto.request.UserRequest;
+import com.project.studyenglish.dto.request.UserUpdateFullName;
+import com.project.studyenglish.dto.response.ApiMessageResponse;
 import com.project.studyenglish.dto.response.LoginResponse;
 import com.project.studyenglish.dto.response.UserResponse;
 import com.project.studyenglish.models.UserEntity;
 import com.project.studyenglish.service.IUserService;
+import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.validation.Valid;
+import org.apiguardian.api.API;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpRequest;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.validation.BindingResult;
 import org.springframework.validation.FieldError;
 import org.springframework.web.bind.annotation.*;
 
+import java.time.LocalDateTime;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -54,40 +61,50 @@ public class UserController {
     }
 
     @PostMapping("/register")
-    public ResponseEntity<?> register(@Valid @RequestBody UserRequest userRequest,
-                                      BindingResult result) {
-        try {
-            if(result.hasErrors()){
-                List<String> errorMessages = result.getFieldErrors()
-                        .stream()
-                        .map(FieldError::getDefaultMessage)
-                        .collect(Collectors.toList());
-                return ResponseEntity.badRequest().body(errorMessages);
-            }
-            if(!userRequest.getPassword().equals(userRequest.getConfirmPassword())){
-                return ResponseEntity.badRequest().body("Password not match");
-            }
-            UserEntity userEntity = userService.createUser(userRequest);
-            Map<String, Long> response = new HashMap<>();
-            response.put("id", userEntity.getId());
-
-            return ResponseEntity.ok(response);
-        }catch (Exception e) {
-            return ResponseEntity.badRequest().body(e.getMessage());
+    public ResponseEntity<?> register(
+            @Valid @RequestBody UserRequest userRequest,
+            BindingResult result
+    ) throws Exception {
+        if (result.hasErrors()) {
+            List<String> errorMessages = result.getFieldErrors()
+                    .stream()
+                    .map(FieldError::getDefaultMessage)
+                    .collect(Collectors.toList());
+            return ResponseEntity.badRequest().body(errorMessages);
         }
+
+        if (!userRequest.getPassword().equals(userRequest.getConfirmPassword())) {
+            return ResponseEntity.badRequest().body("Password not match");
+        }
+
+        UserEntity userEntity = userService.createUser(userRequest);
+
+        return ResponseEntity.ok(Map.of("id", userEntity.getId()));
     }
+
     @PostMapping("/login")
     public ResponseEntity<?> login(
-            @Valid @RequestBody UserLogin userLogin) {
-        try {
-            String token = userService.login(userLogin.getEmail(), userLogin.getPassword());
-            Map<String, String> response = new HashMap<>();
-            response.put("token", token);
-            return ResponseEntity.ok(response);
-        } catch (Exception e) {
-            return ResponseEntity.badRequest().body(e.getMessage());
+            @Valid @RequestBody UserLogin userLogin,
+            BindingResult result) throws Exception {
+
+        if (result.hasErrors()) {
+            String errorMsg = result.getFieldErrors()
+                    .stream()
+                    .map(FieldError::getDefaultMessage)
+                    .collect(Collectors.joining(", "));
+            ApiError error = ApiError.builder()
+                    .status(HttpStatus.BAD_REQUEST.value())
+                    .error("VALIDATION_ERROR")
+                    .message(errorMsg)
+                    .timestamp(LocalDateTime.now())
+                    .build();
+            return ResponseEntity.badRequest().body(error);
         }
+
+        LoginResponse data = userService.login(userLogin.getEmail(), userLogin.getPassword());
+        return ResponseEntity.ok(data);
     }
+
     @GetMapping("")
     public ResponseEntity<?> getAllUsers(HttpServletRequest request) {
         try {
@@ -206,6 +223,60 @@ public class UserController {
         }
     }
 
+
+    @PutMapping("/update-fullname/{id}")
+    public ResponseEntity<?> updateFullName(
+            @PathVariable Long id,
+            @RequestBody UserUpdateFullName req
+    ) {
+        userService.updateFullName(id, req);
+
+        Map<String, String> response = new HashMap<>();
+        response.put("message", "Update successful!");
+        return ResponseEntity.ok(response);
+    }
+
+    @PostMapping("/render/token")
+    public ResponseEntity<?> renderToken(
+            @Valid @RequestBody UserLogin userLogin,
+            BindingResult result) throws Exception {
+
+        if (result.hasErrors()) {
+            String errorMsg = result.getFieldErrors()
+                    .stream()
+                    .map(FieldError::getDefaultMessage)
+                    .collect(Collectors.joining(", "));
+            ApiError error = ApiError.builder()
+                    .status(HttpStatus.BAD_REQUEST.value())
+                    .error("VALIDATION_ERROR")
+                    .message(errorMsg)
+                    .timestamp(LocalDateTime.now())
+                    .build();
+            return ResponseEntity.badRequest().body(error);
+        }
+
+      String token = userService.renderToken(userLogin.getEmail(), userLogin.getPassword());
+        return ResponseEntity.ok(token);
+    }
+    @GetMapping("/validate")
+    public ResponseEntity<?> validateToken(HttpServletRequest request) {
+        try {
+            String authHeader = request.getHeader("Authorization");
+
+            if (authHeader == null || !authHeader.startsWith("Bearer ")) {
+                return ResponseEntity.status(HttpStatus.UNAUTHORIZED)
+                        .body(Map.of("error", "Missing or invalid Authorization header"));
+            }
+
+            String token = authHeader.substring(7);
+            ApiMessageResponse response = userService.validationToken(token);
+            return ResponseEntity.ok(response);
+
+        } catch (Exception e) {
+            return ResponseEntity.status(HttpStatus.UNAUTHORIZED)
+                    .body(Map.of("error", "Invalid token"));
+        }
+    }
 
 
 }

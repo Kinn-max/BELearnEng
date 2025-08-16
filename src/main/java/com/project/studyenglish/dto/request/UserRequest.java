@@ -14,8 +14,6 @@ import lombok.Setter;
 @AllArgsConstructor
 @NoArgsConstructor
 public class UserRequest {
-    @NotBlank(message = "Phone number is required")
-    private String fullName;
     @NotBlank(message = "Email is required")
     private String email;
     @Size(min = 6, message = "Password must be at least 6 characters long")
