@@ -6,9 +6,13 @@ import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
 
+import java.util.List;
+
 public interface CategoryRepository extends JpaRepository<CategoryEntity, Long>, CategoryCustomRepository {
     @Query("SELECT COUNT(c) FROM CategoryEntity c WHERE c.codeName = :codeName")
     int countByCodeName(@Param("codeName") String codeName);
+    @Query(value = "SELECT * FROM category ORDER BY RANDOM() LIMIT :number", nativeQuery = true)
+    List<CategoryEntity> findRandomCategories(@Param("number") int number);
 
 }
 

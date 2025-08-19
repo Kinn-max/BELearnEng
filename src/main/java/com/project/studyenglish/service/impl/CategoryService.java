@@ -117,4 +117,27 @@ public class CategoryService implements ICategoryService {
         return categoryRepository.findById(id)
                 .orElseThrow(() -> new DataNotFoundException("Category not found"));
     }
+
+    @Override
+    public List<CategoryOfCommonDto> getRandomCategoryOfProduct(String codeName,int number) {
+        List<CategoryEntity> categoryEntityList = categoryRepository.getAllOptionsCategoryAndStatusRandom(codeName,number);
+        List<CategoryOfCommonDto> categoryOfCommonDtoList = new ArrayList<>();
+        for (CategoryEntity category : categoryEntityList) {
+            CategoryOfCommonDto categoryOfCommonDto = modelMapper.map(category, CategoryOfCommonDto.class);
+            if(category.getExamEntityList() != null && category.getExamEntityList().size() > 0) {
+                categoryOfCommonDto.setQuantity(category.getExamEntityList().size());
+            }
+            if (category.getVocabularyEntityList() != null && category.getVocabularyEntityList().size() > 0) {
+                categoryOfCommonDto.setQuantity(category.getVocabularyEntityList().size());
+            }
+            if(category.getGrammarEntityList() != null && category.getGrammarEntityList().size() > 0) {
+                categoryOfCommonDto.setQuantity(category.getGrammarEntityList().size());
+            }
+            if(category.getProductEntityList() != null && category.getProductEntityList().size() > 0) {
+                categoryOfCommonDto.setQuantity(category.getProductEntityList().size());
+            }
+            categoryOfCommonDtoList.add(categoryOfCommonDto);
+        }
+        return categoryOfCommonDtoList;
+    }
 }

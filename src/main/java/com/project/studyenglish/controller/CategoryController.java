@@ -3,11 +3,11 @@ package com.project.studyenglish.controller;
 import com.project.studyenglish.constant.NameOfCategory;
 import com.project.studyenglish.dto.CategoryOfCommonDto;
 import com.project.studyenglish.dto.request.CategoryRequest;
-import com.project.studyenglish.dto.request.ProductRequest;
 import com.project.studyenglish.service.impl.CategoryService;
 import com.project.studyenglish.service.impl.VocabularyService;
 import jakarta.validation.Valid;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.repository.query.Param;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.transaction.annotation.Transactional;
@@ -115,4 +115,10 @@ public class CategoryController {
         }
 
     }
+    @GetMapping(value =  "/vocabulary/status/random")
+    public ResponseEntity<List<CategoryOfCommonDto>> getAllCategoryOfVocabularyAndStatusRandom(@Param("number") int number) {
+        List<CategoryOfCommonDto> categoryOfCommonDtos = categoryService.getRandomCategoryOfProduct(NameOfCategory.VOCABULARY,number);
+        return ResponseEntity.ok(categoryOfCommonDtos);
+    }
+
 }

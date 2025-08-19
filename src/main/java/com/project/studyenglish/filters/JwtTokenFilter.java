@@ -61,13 +61,15 @@ public class JwtTokenFilter extends OncePerRequestFilter {
                 Pair.of(String.format("%s/user/register", apiPrefix), "POST"),
                 Pair.of(String.format("%s/user/login", apiPrefix), "POST"),
                 //category pass
+                Pair.of(String.format("%s/category/**", apiPrefix), "GET"),
                 Pair.of(String.format("%s/category/vocabulary", apiPrefix), "GET"),
+                Pair.of(String.format("%s/category/vocabulary/status", apiPrefix), "GET"),
                 Pair.of(String.format("%s/category/product", apiPrefix), "GET"),
                 Pair.of(String.format("%s/category/exam", apiPrefix), "GET"),
                 Pair.of(String.format("%s/category/grammar", apiPrefix), "GET"),
-                Pair.of(String.format("%s/category/**", apiPrefix), "GET"),
                 //vocabulary pass
                 Pair.of(String.format("%s/vocabulary", apiPrefix), "GET"),
+                Pair.of(String.format("%s/vocabulary/result/progress", apiPrefix), "POST"),
                 //product
                 Pair.of(String.format("%s/product", apiPrefix), "GET"),
                 //exam

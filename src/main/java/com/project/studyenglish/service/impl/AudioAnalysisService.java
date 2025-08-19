@@ -36,7 +36,7 @@ public class AudioAnalysisService {
             String analysisResult = analyzePronounciation(request.message(), transcribedText);
 
             // 3. Generate audio feedback using Google Cloud TTS
-            String audioBase64 = generateAudioFeedback(transcribedText);
+            String audioBase64 = generateAudioFeedback(request.message());
 
             return new AudioAnalysisResponse(analysisResult, audioBase64);
 

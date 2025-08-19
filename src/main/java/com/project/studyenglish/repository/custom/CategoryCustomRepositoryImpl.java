@@ -29,4 +29,14 @@ public class CategoryCustomRepositoryImpl implements CategoryCustomRepository {
         return query.getResultList();
     }
 
+    @Override
+    public List<CategoryEntity> getAllOptionsCategoryAndStatusRandom(String categoryCode, int number) {
+        String sql = "SELECT * FROM category WHERE code_name = ? AND status = true ORDER BY RAND() LIMIT ?";
+        Query query = entityManager.createNativeQuery(sql, CategoryEntity.class);
+        query.setParameter(1, categoryCode);
+        query.setParameter(2, number);
+        return query.getResultList();
+
+    }
+
 }

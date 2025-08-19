@@ -25,10 +25,16 @@ public class VocabularyEntity extends ExtentOfCommon {
     @Column(name = "part")
     private String part;
 
+    @Column(name = "name_english")
+    private String nameEnglish;
     @Column(name = "sound",columnDefinition = "LONGTEXT")
     @Lob
     private String sound;
-
+    @Column(name = "image", columnDefinition = "LONGTEXT")
+    @Lob
+    private String image;
+    @Column(name = "description", columnDefinition = "TEXT")
+    private String description;
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "category_id")
     private CategoryEntity categoryEntity;

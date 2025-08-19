@@ -4,8 +4,10 @@ import com.project.studyenglish.dto.CategoryOfCommonDto;
 import com.project.studyenglish.dto.ProductDto;
 import com.project.studyenglish.dto.VocabularyDto;
 import com.project.studyenglish.dto.request.CategoryRequest;
+import com.project.studyenglish.dto.request.VocabularyLearningProgressRequest;
 import com.project.studyenglish.dto.request.VocabularyRequest;
 import com.project.studyenglish.service.IVocabularyService;
+import feign.Body;
 import jakarta.validation.Valid;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
@@ -72,6 +74,15 @@ public class VocabularyController {
         try {
             List<VocabularyDto> result= vocabularyService.getAllVocabularyByCategoryAndStatus(id);
             return ResponseEntity.ok(result);
+        } catch (Exception e) {
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(e.getMessage());
+        }
+    }
+    @PostMapping("/result/progress")
+    public ResponseEntity<?> saveProgress(@RequestBody VocabularyLearningProgressRequest rq) {
+        try {
+            vocabularyService.saveOrUpdateProgress(rq);
+            return ResponseEntity.ok(Map.of("message","success"));
         } catch (Exception e) {
             return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(e.getMessage());
         }

@@ -15,4 +15,5 @@ public interface ICategoryService {
     void statusCategory(Long id);
     CategoryOfCommonDto getCategoryById(Long id);
     CategoryEntity getCategoryEntityById(Long id);
+    List<CategoryOfCommonDto> getRandomCategoryOfProduct(String codeName,int number);
 }

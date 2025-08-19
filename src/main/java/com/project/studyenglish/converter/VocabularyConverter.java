@@ -1,8 +1,11 @@
 package com.project.studyenglish.converter;
 
 import com.project.studyenglish.dto.VocabularyDto;
+import com.project.studyenglish.dto.request.VocabularyIncorrectRequest;
+import com.project.studyenglish.dto.request.VocabularyLearningProgressRequest;
 import com.project.studyenglish.dto.request.VocabularyRequest;
 import com.project.studyenglish.models.VocabularyEntity;
+import com.project.studyenglish.models.VocabularyLearningProgressEntity;
 import org.antlr.v4.runtime.Vocabulary;
 import org.modelmapper.ModelMapper;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -27,5 +30,9 @@ public class VocabularyConverter {
         vocabularyEntity.setImage(vocabularyRequest.getImage());
 
         return vocabularyEntity;
+    }
+    public VocabularyLearningProgressEntity toVocabularyLearningProgressEntity(VocabularyLearningProgressRequest rq) {
+        VocabularyLearningProgressEntity vocabularyLearningProgressEntity = modelMapper.map(rq, VocabularyLearningProgressEntity.class);
+        return vocabularyLearningProgressEntity;
     }
 }

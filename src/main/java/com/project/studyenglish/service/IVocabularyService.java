@@ -2,6 +2,7 @@ package com.project.studyenglish.service;
 
 import com.project.studyenglish.dto.ProductDto;
 import com.project.studyenglish.dto.VocabularyDto;
+import com.project.studyenglish.dto.request.VocabularyLearningProgressRequest;
 import com.project.studyenglish.dto.request.VocabularyRequest;
 import com.project.studyenglish.models.VocabularyEntity;
 
@@ -14,4 +15,5 @@ public interface IVocabularyService {
     void deleteVocabulary(Long id);
     VocabularyDto getVocabularyById(Long id);
     List<VocabularyDto>  getAllVocabularyByCategoryAndStatus(Long id);
+    void saveOrUpdateProgress(VocabularyLearningProgressRequest vocabularyLearningProgressRequest);
 }

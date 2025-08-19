@@ -1,14 +1,19 @@
 package com.project.studyenglish.service.impl;
 
 import com.project.studyenglish.converter.VocabularyConverter;
+import com.project.studyenglish.customexceptions.DataNotFoundException;
 import com.project.studyenglish.dto.VocabularyDto;
+import com.project.studyenglish.dto.request.VocabularyIncorrectRequest;
+import com.project.studyenglish.dto.request.VocabularyLearningProgressRequest;
 import com.project.studyenglish.dto.request.VocabularyRequest;
-import com.project.studyenglish.models.CategoryEntity;
-import com.project.studyenglish.models.ProductEntity;
-import com.project.studyenglish.models.VocabularyEntity;
+import com.project.studyenglish.models.*;
 import com.project.studyenglish.repository.CategoryRepository;
+import com.project.studyenglish.repository.UserRepository;
+import com.project.studyenglish.repository.VocabularyLearningProgressRepository;
 import com.project.studyenglish.repository.VocabularyRepository;
 import com.project.studyenglish.service.IVocabularyService;
+import lombok.RequiredArgsConstructor;
+import org.antlr.v4.runtime.Vocabulary;
 import org.modelmapper.ModelMapper;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -16,6 +21,7 @@ import org.springframework.stereotype.Service;
 import java.util.ArrayList;
 import java.util.List;
 
+@RequiredArgsConstructor
 @Service
 public class VocabularyService implements IVocabularyService {
     @Autowired
@@ -24,6 +30,8 @@ public class VocabularyService implements IVocabularyService {
     private VocabularyConverter vocabularyConverter;
     @Autowired
     private CategoryRepository categoryRepository;
+    private final VocabularyLearningProgressRepository vocabularyLearningProgressRepository;
+    private final UserRepository userRepository;
     @Autowired
     private ModelMapper modelMapper;
     @Override
@@ -43,6 +51,7 @@ public class VocabularyService implements IVocabularyService {
        List<VocabularyDto> vocabularyDtoList = new ArrayList<>();
         for (VocabularyEntity vocabularyEntity : vocabularyEntityList) {
             VocabularyDto vocabularyDto = vocabularyConverter.toVocabularyDto(vocabularyEntity);
+            vocabularyDto.setName(vocabularyEntity.getNameEnglish());
             vocabularyDtoList.add(vocabularyDto);
         }
         return vocabularyDtoList;
@@ -81,9 +90,59 @@ public class VocabularyService implements IVocabularyService {
         for (VocabularyEntity vocabularyEntity : vocabularyEntityList) {
             if(vocabularyEntity.getCategoryEntity().getStatus() == true){
                 VocabularyDto vocabularyDto = vocabularyConverter.toVocabularyDto(vocabularyEntity);
+                vocabularyDto.setName(vocabularyEntity.getNameEnglish());
                 vocabularyDtoList.add(vocabularyDto);
             }
         }
         return vocabularyDtoList;
     }
+
+    @Override
+    public void saveOrUpdateProgress(VocabularyLearningProgressRequest rq) {
+
+        UserEntity user = userRepository.findById(rq.getUserId())
+                .orElseThrow(() -> new RuntimeException("User not found"));
+        CategoryEntity category = categoryRepository.findById(rq.getCategoryId())
+                .orElseThrow(() -> new RuntimeException("Category not found"));
+
+
+        VocabularyLearningProgressEntity progress = vocabularyLearningProgressRepository
+                .findByUserEntityIdAndCategoryEntityId(rq.getUserId(), rq.getCategoryId())
+                .orElseGet(() -> VocabularyLearningProgressEntity.builder()
+                        .userEntity(user)
+                        .categoryEntity(category)
+                        .incorrectAnswers(new ArrayList<>())
+                        .build()
+                );
+
+        progress.setMasteryLevel(rq.getMasteryLevel());
+        progress.setCorrectCount(rq.getCorrectCount());
+        progress.setIncorrectCount(rq.getIncorrectCount());
+        progress.setTotalAttempts(rq.getTotalAttempts());
+        progress.setSuccessRate(rq.getSuccessRate());
+
+
+        progress.getIncorrectAnswers().clear();
+
+
+        List<VocabularyIncorrectEntity> incorrectEntities = rq.getIncorrectAnswers().stream()
+                .map(ans -> {
+                    VocabularyEntity vocab = vocabularyRepository.findById(ans.getVocabularyId())
+                            .orElseThrow(() -> new DataNotFoundException("Vocabulary not found with id: " + ans.getVocabularyId()));
+
+                    return VocabularyIncorrectEntity.builder()
+                            .vocabulary(vocab)
+                            .progress(progress)
+                            .build();
+                })
+                .toList();
+
+
+        progress.getIncorrectAnswers().addAll(incorrectEntities);
+
+        vocabularyLearningProgressRepository.save(progress);
+    }
+
+
+
 }

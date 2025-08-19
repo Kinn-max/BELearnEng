@@ -2,7 +2,9 @@ package com.project.studyenglish.models;
 import jakarta.persistence.*;
 import lombok.*;
 
+import java.util.ArrayList;
 import java.util.Date;
+import java.util.List;
 
 @Data
 @Getter
@@ -22,11 +24,15 @@ public class VocabularyLearningProgressEntity extends BaseEntity {
     private UserEntity userEntity;
 
     @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "vocabulary_id", nullable = false)
-    private VocabularyEntity vocabularyEntity;
+    @JoinColumn(name = "category_id", nullable = false)
+    private CategoryEntity categoryEntity;
+
+    @OneToMany(mappedBy = "progress", cascade = CascadeType.ALL, orphanRemoval = true)
+    @Builder.Default
+    private List<VocabularyIncorrectEntity > incorrectAnswers = new ArrayList<>();
 
     @Column(name = "mastery_level")
-    private Integer masteryLevel = 0;
+    private String masteryLevel;
 
     @Column(name = "correct_count")
     private Integer correctCount = 0;
@@ -38,14 +44,6 @@ public class VocabularyLearningProgressEntity extends BaseEntity {
     private Integer totalAttempts = 0;
 
     @Column(name = "success_rate")
-    private Double successRate = 0.0; // %
+    private Double successRate = 0.0;
 
-    @Column(name = "last_reviewed_date")
-    private Date lastReviewedDate;
-
-    @Column(name = "next_review_date")
-    private Date nextReviewDate; // Spaced repetition
-
-    @Column(name = "review_interval_days")
-    private Integer reviewIntervalDays = 1;
 }
