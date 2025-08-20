@@ -6,6 +6,8 @@ import com.project.studyenglish.dto.VocabularyDto;
 import com.project.studyenglish.dto.request.CategoryRequest;
 import com.project.studyenglish.dto.request.VocabularyLearningProgressRequest;
 import com.project.studyenglish.dto.request.VocabularyRequest;
+import com.project.studyenglish.dto.response.VocabularyProgressOverviewResponse;
+import com.project.studyenglish.dto.response.VocabularyProgressResponse;
 import com.project.studyenglish.service.IVocabularyService;
 import feign.Body;
 import jakarta.validation.Valid;
@@ -87,4 +89,33 @@ public class VocabularyController {
             return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(e.getMessage());
         }
     }
+    @GetMapping("/result/progress/overview/{userId}/{cateId}")
+    public ResponseEntity<?> overviewProgress(@PathVariable Long userId, @PathVariable Long cateId) {
+        try {
+            VocabularyProgressOverviewResponse vocab = vocabularyService.getOverview(userId, cateId);
+
+            if (vocab == null) {
+                return ResponseEntity.status(HttpStatus.NOT_FOUND)
+                        .body("No progress found for this user and category");
+            }
+            return ResponseEntity.ok(vocab);
+        } catch (Exception e) {
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(e.getMessage());
+        }
+    }
+    @GetMapping("/result/progress/{userId}/{cateId}")
+    public ResponseEntity<?> getProgress(@PathVariable Long userId, @PathVariable Long cateId) {
+        try {
+            VocabularyProgressResponse vocab = vocabularyService.getProgress(userId, cateId);
+
+            if (vocab == null) {
+                return ResponseEntity.status(HttpStatus.NOT_FOUND)
+                        .body("No progress found for this user and category");
+            }
+            return ResponseEntity.ok(vocab);
+        } catch (Exception e) {
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(e.getMessage());
+        }
+    }
+
 }

@@ -4,6 +4,8 @@ import com.project.studyenglish.dto.ProductDto;
 import com.project.studyenglish.dto.VocabularyDto;
 import com.project.studyenglish.dto.request.VocabularyLearningProgressRequest;
 import com.project.studyenglish.dto.request.VocabularyRequest;
+import com.project.studyenglish.dto.response.VocabularyProgressOverviewResponse;
+import com.project.studyenglish.dto.response.VocabularyProgressResponse;
 import com.project.studyenglish.models.VocabularyEntity;
 
 import java.util.List;
@@ -16,4 +18,6 @@ public interface IVocabularyService {
     VocabularyDto getVocabularyById(Long id);
     List<VocabularyDto>  getAllVocabularyByCategoryAndStatus(Long id);
     void saveOrUpdateProgress(VocabularyLearningProgressRequest vocabularyLearningProgressRequest);
+    VocabularyProgressOverviewResponse getOverview( Long userId,Long cateId);
+    VocabularyProgressResponse getProgress(Long userId, Long cateId);
 }

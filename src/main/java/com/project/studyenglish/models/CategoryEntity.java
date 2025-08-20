@@ -32,6 +32,9 @@ public class CategoryEntity extends BaseEntity {
     @Column(name = "code_name")
     private String codeName;
 
+    @Column(name = "level")
+    private String level;
+
     @Column(name = "image",columnDefinition = "LONGTEXT")
     @Lob
     private String image;

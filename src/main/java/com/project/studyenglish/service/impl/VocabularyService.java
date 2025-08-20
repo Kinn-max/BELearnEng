@@ -6,6 +6,8 @@ import com.project.studyenglish.dto.VocabularyDto;
 import com.project.studyenglish.dto.request.VocabularyIncorrectRequest;
 import com.project.studyenglish.dto.request.VocabularyLearningProgressRequest;
 import com.project.studyenglish.dto.request.VocabularyRequest;
+import com.project.studyenglish.dto.response.VocabularyProgressOverviewResponse;
+import com.project.studyenglish.dto.response.VocabularyProgressResponse;
 import com.project.studyenglish.models.*;
 import com.project.studyenglish.repository.CategoryRepository;
 import com.project.studyenglish.repository.UserRepository;
@@ -143,6 +145,61 @@ public class VocabularyService implements IVocabularyService {
         vocabularyLearningProgressRepository.save(progress);
     }
 
+    @Override
+    public VocabularyProgressOverviewResponse getOverview(Long userId, Long categoryId) {
+        UserEntity user = userRepository.findById(userId)
+                .orElseThrow(() -> new RuntimeException("User not found"));
+        CategoryEntity category = categoryRepository.findById(categoryId)
+                .orElseThrow(() -> new RuntimeException("Category not found"));
+
+        VocabularyLearningProgressEntity progress = vocabularyLearningProgressRepository
+                .findByUserEntityIdAndCategoryEntityId(userId, categoryId)
+                .orElse(null);
+
+        if (progress == null) {
+            return null;
+        }
+
+        return VocabularyProgressOverviewResponse.builder()
+                .id(progress.getId())
+                .userId(progress.getUserEntity().getId())
+                .categoryId(progress.getCategoryEntity().getId())
+                .categoryName(progress.getCategoryEntity().getName())
+                .masteryLevel(progress.getMasteryLevel())
+                .successRate(progress.getSuccessRate())
+                .updateDate(progress.getUpdatedAt())
+                .build();
+    }
+
+    @Override
+    public VocabularyProgressResponse getProgress(Long userId, Long cateId) {
+        UserEntity user = userRepository.findById(userId)
+                .orElseThrow(() -> new RuntimeException("User not found"));
+        CategoryEntity category = categoryRepository.findById(cateId)
+                .orElseThrow(() -> new RuntimeException("Category not found"));
+
+        VocabularyLearningProgressEntity progress = vocabularyLearningProgressRepository
+                .findByUserEntityIdAndCategoryEntityId(userId, cateId)
+                .orElse(null);
+
+        if (progress == null) {
+            return null;
+        }
+
+        return VocabularyProgressResponse.builder()
+                .id(progress.getId())
+                .userId(progress.getUserEntity().getId())
+                .categoryId(progress.getCategoryEntity().getId())
+                .categoryName(progress.getCategoryEntity().getName())
+                .level(progress.getCategoryEntity().getLevel())
+                .masteryLevel(progress.getMasteryLevel())
+                .correctCount(progress.getCorrectCount())
+                .incorrectCount(progress.getIncorrectCount())
+                .successRate(progress.getSuccessRate())
+                .updateDate(progress.getUpdatedAt())
+                .totalAttempts(progress.getTotalAttempts())
+                .build();
+    }
 
 
 }
