@@ -39,7 +39,9 @@ public class WebSecurityConfig {
                                     String.format("%s/search/**", apiPrefix),
                                     String.format("%s/user/activation/**", apiPrefix),
                                     String.format("%s/product-rating/**", apiPrefix),
-                                    String.format("%s/vocabulary/result/progress", apiPrefix)
+                                    String.format("%s/vocabulary/result/progress", apiPrefix),
+                                    String.format("%s/vocabulary/favorite", apiPrefix),
+                                    String.format("%s/exam/submit", apiPrefix)
                             ).permitAll()
                             .requestMatchers(GET, PUBLIC_GET_ENDPOINTS).permitAll()
                             .requestMatchers(POST, PUBLIC_POST_ENDPOINTS).permitAll()

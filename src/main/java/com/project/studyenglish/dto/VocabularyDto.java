@@ -17,4 +17,5 @@ public class VocabularyDto {
     private String name;
     private String description;
     private String image;
+    private Boolean isFavorite;
 }

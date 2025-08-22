@@ -13,7 +13,7 @@ import java.util.Date;
 @Builder
 @Entity
 @Table(name = "user_saved_vocabulary")
-public class UserSavedVocabularyEntity extends BaseEntity {
+public class UserSavedVocabularyEntity  {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
@@ -29,16 +29,8 @@ public class UserSavedVocabularyEntity extends BaseEntity {
     @Column(name = "saved_date")
     private Date savedDate;
 
-    @Column(name = "is_learned")
-    private Boolean isLearned = false;
-
     @Column(name = "learned_date")
     private Date learnedDate;
 
-    @Enumerated(EnumType.STRING)
-    @Column(name = "priority")
-    private LearningPriority priority = LearningPriority.MEDIUM;
 
-    @Column(name = "notes")
-    private String notes;
 }

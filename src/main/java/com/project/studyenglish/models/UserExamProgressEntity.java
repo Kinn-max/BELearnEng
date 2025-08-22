@@ -20,15 +20,11 @@ public class UserExamProgressEntity extends BaseEntity {
     @JoinColumn(name = "user_id", nullable = false)
     private UserEntity userEntity;
 
-    @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "category_id", nullable = false)
-    private CategoryEntity categoryEntity;
+    @Column(name = "max_level_unlocked")
+    private Integer maxLevelUnlocked = 1;
 
     @Column(name = "current_level")
     private Integer currentLevel = 1;
-
-    @Column(name = "max_level_unlocked")
-    private Integer maxLevelUnlocked = 1;
 
     @Column(name = "total_levels")
     private Integer totalLevels;

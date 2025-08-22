@@ -17,6 +17,7 @@ public class VocabularyConverter {
     private ModelMapper modelMapper;
     public VocabularyDto toVocabularyDto(VocabularyEntity vocabulary) {
         VocabularyDto vocabularyDto = modelMapper.map(vocabulary, VocabularyDto.class);
+        vocabularyDto.setName(vocabulary.getNameEnglish());
         return vocabularyDto;
     }
     public VocabularyEntity toVocabularyEntity(VocabularyRequest vocabularyRequest) {

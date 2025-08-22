@@ -70,6 +70,7 @@ public class JwtTokenFilter extends OncePerRequestFilter {
                 //vocabulary pass
                 Pair.of(String.format("%s/vocabulary", apiPrefix), "GET"),
                 Pair.of(String.format("%s/vocabulary/result/progress", apiPrefix), "POST"),
+                Pair.of(String.format("%s/vocabulary/favorite", apiPrefix), "POST"),
                 //product
                 Pair.of(String.format("%s/product", apiPrefix), "GET"),
                 //exam

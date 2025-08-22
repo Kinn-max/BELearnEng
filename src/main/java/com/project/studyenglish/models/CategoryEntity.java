@@ -33,12 +33,17 @@ public class CategoryEntity extends BaseEntity {
     private String codeName;
 
     @Column(name = "level")
-    private String level;
+    private Integer level=1;
 
     @Column(name = "image",columnDefinition = "LONGTEXT")
     @Lob
     private String image;
 
+    @Column(name = "parent_category_id")
+    private Long parentCategoryId;
+
+    @Column(name = "sort_order")
+    private Integer sortOrder;
     @OneToMany(mappedBy = "categoryEntity", fetch = FetchType.LAZY,cascade = CascadeType.ALL)
     private List<VocabularyEntity> vocabularyEntityList = new ArrayList<>();
 

@@ -1,11 +1,9 @@
 package com.project.studyenglish.dto;
-import lombok.AllArgsConstructor;
-import lombok.Getter;
-import lombok.NoArgsConstructor;
-import lombok.Setter;
+import lombok.*;
 
 @Getter
 @Setter
+@Builder
 @AllArgsConstructor
 @NoArgsConstructor
 public class CategoryOfCommonDto {
@@ -17,4 +15,5 @@ public class CategoryOfCommonDto {
     private String image;
     private String createdAt;
     private int quantity;
+    private Integer level;
 }

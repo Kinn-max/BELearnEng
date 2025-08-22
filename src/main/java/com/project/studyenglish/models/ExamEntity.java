@@ -5,19 +5,17 @@ import jakarta.persistence.*;
 import lombok.*;
 
 @Data
-@Getter
-@Setter
 @AllArgsConstructor
 @NoArgsConstructor
 @Builder
 @Entity
 @Table(name = "exam")
-public class ExamEntity {
+public class ExamEntity extends BaseEntity {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    @Column(name = "question")
+    @Column(name = "question", nullable = false)
     private String question;
 
     @Column(name = "answer_a")
@@ -32,21 +30,21 @@ public class ExamEntity {
     @Column(name = "answer_d")
     private String answerD;
 
-    @Column(name = "answer")
+    @Column(name = "answer", nullable = false)
     private String answer;
 
     @Column(name = "image", columnDefinition = "LONGTEXT")
     @Lob
     private String image;
 
-    @Column(name = "level")
-    private Integer level = 1;
-
     @Enumerated(EnumType.STRING)
     @Column(name = "difficulty")
     private DifficultyLevel difficulty = DifficultyLevel.EASY;
 
     @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "category_id")
+    @JoinColumn(name = "category_id", nullable = false)
     private CategoryEntity categoryEntity;
+
+    @Column(name = "question_order")
+    private Integer questionOrder;
 }

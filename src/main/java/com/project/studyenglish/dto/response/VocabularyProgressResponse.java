@@ -12,7 +12,7 @@ public class VocabularyProgressResponse {
     private Long id;
     private Long userId;
     private Long categoryId;
-    private String level;
+    private Integer level;
     private String categoryName;
     private String masteryLevel;
     private Integer correctCount;

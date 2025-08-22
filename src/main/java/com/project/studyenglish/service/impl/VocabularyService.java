@@ -3,25 +3,25 @@ package com.project.studyenglish.service.impl;
 import com.project.studyenglish.converter.VocabularyConverter;
 import com.project.studyenglish.customexceptions.DataNotFoundException;
 import com.project.studyenglish.dto.VocabularyDto;
-import com.project.studyenglish.dto.request.VocabularyIncorrectRequest;
+import com.project.studyenglish.dto.request.UserSavedVocabularyListRequest;
 import com.project.studyenglish.dto.request.VocabularyLearningProgressRequest;
 import com.project.studyenglish.dto.request.VocabularyRequest;
+import com.project.studyenglish.dto.response.VocabularyIncorrectResponse;
 import com.project.studyenglish.dto.response.VocabularyProgressOverviewResponse;
 import com.project.studyenglish.dto.response.VocabularyProgressResponse;
 import com.project.studyenglish.models.*;
-import com.project.studyenglish.repository.CategoryRepository;
-import com.project.studyenglish.repository.UserRepository;
-import com.project.studyenglish.repository.VocabularyLearningProgressRepository;
-import com.project.studyenglish.repository.VocabularyRepository;
+import com.project.studyenglish.repository.*;
 import com.project.studyenglish.service.IVocabularyService;
+import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
-import org.antlr.v4.runtime.Vocabulary;
 import org.modelmapper.ModelMapper;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.security.core.Authentication;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
 
-import java.util.ArrayList;
-import java.util.List;
+import java.util.*;
+import java.util.stream.Collectors;
 
 @RequiredArgsConstructor
 @Service
@@ -34,6 +34,7 @@ public class VocabularyService implements IVocabularyService {
     private CategoryRepository categoryRepository;
     private final VocabularyLearningProgressRepository vocabularyLearningProgressRepository;
     private final UserRepository userRepository;
+    private final UserSavedVocabularyRepository userSavedVocabularyRepository;
     @Autowired
     private ModelMapper modelMapper;
     @Override
@@ -86,13 +87,20 @@ public class VocabularyService implements IVocabularyService {
     }
 
     @Override
-    public List<VocabularyDto> getAllVocabularyByCategoryAndStatus(Long id) {
+    public List<VocabularyDto> getAllVocabularyByCategoryAndStatus(Long id,Long userId) {
         List<VocabularyEntity> vocabularyEntityList = vocabularyRepository.findByCategoryEntity_Id(id);
+        List<Long> favoriteIds = userSavedVocabularyRepository
+                .findByUserEntityId(userId)
+                .stream()
+                .map(saved -> saved.getVocabularyEntity().getId())
+                .toList();
         List<VocabularyDto> vocabularyDtoList = new ArrayList<>();
+
         for (VocabularyEntity vocabularyEntity : vocabularyEntityList) {
-            if(vocabularyEntity.getCategoryEntity().getStatus() == true){
+            if (Boolean.TRUE.equals(vocabularyEntity.getCategoryEntity().getStatus())) {
                 VocabularyDto vocabularyDto = vocabularyConverter.toVocabularyDto(vocabularyEntity);
                 vocabularyDto.setName(vocabularyEntity.getNameEnglish());
+                vocabularyDto.setIsFavorite(favoriteIds.contains(vocabularyEntity.getId()));
                 vocabularyDtoList.add(vocabularyDto);
             }
         }
@@ -199,6 +207,73 @@ public class VocabularyService implements IVocabularyService {
                 .updateDate(progress.getUpdatedAt())
                 .totalAttempts(progress.getTotalAttempts())
                 .build();
+    }
+
+    @Override
+    public VocabularyIncorrectResponse getVocabularyIncorrectByProgressId(Long progressId, Long userId) {
+        VocabularyLearningProgressEntity progress = vocabularyLearningProgressRepository.findById(progressId)
+                .orElseThrow(() -> new RuntimeException("Vocabulary Learning progress not found with id: " + progressId));
+
+        List<Long> favoriteIds = userSavedVocabularyRepository
+                .findByUserEntityId(userId)
+                .stream()
+                .map(saved -> saved.getVocabularyEntity().getId())
+                .toList();
+
+
+        List<VocabularyDto> incorrectResponses = Optional.ofNullable(progress.getIncorrectAnswers())
+                .orElse(Collections.emptyList())
+                .stream()
+                .map(i -> {
+                    VocabularyDto dto = vocabularyConverter.toVocabularyDto(i.getVocabulary());
+                    dto.setIsFavorite(favoriteIds.contains(i.getVocabulary().getId()));
+                    return dto;
+                })
+                .toList();
+
+        return VocabularyIncorrectResponse.builder()
+                .progressId(progress.getId())
+                .vocabularies(incorrectResponses)
+                .build();
+    }
+
+
+    @Override
+    @Transactional
+    public void saveUserSavedVocabularies(UserSavedVocabularyListRequest rq) {
+        UserEntity user = userRepository.findById(rq.getUserId())
+                .orElseThrow(() -> new RuntimeException("User not found with id: " + rq.getUserId()));
+
+        List<UserSavedVocabularyEntity> currentEntities = userSavedVocabularyRepository.findByUserEntityId(rq.getUserId());
+
+        Set<Long> currentIds = currentEntities.stream()
+                .map(saved -> saved.getVocabularyEntity().getId())
+                .collect(Collectors.toSet());
+
+        Set<Long> newIds = new HashSet<>(rq.getVocabularies());
+
+        List<UserSavedVocabularyEntity> toDelete = currentEntities.stream()
+                .filter(saved -> !newIds.contains(saved.getVocabularyEntity().getId()))
+                .toList();
+        if (!toDelete.isEmpty()) {
+            userSavedVocabularyRepository.deleteAll(toDelete);
+        }
+
+        List<UserSavedVocabularyEntity> toAdd = newIds.stream()
+                .filter(id -> !currentIds.contains(id))
+                .map(vocabId -> {
+                    VocabularyEntity vocab = vocabularyRepository.findById(vocabId)
+                            .orElseThrow(() -> new RuntimeException("Vocabulary not found with id: " + vocabId));
+                    return UserSavedVocabularyEntity.builder()
+                            .userEntity(user)
+                            .vocabularyEntity(vocab)
+                            .savedDate(new Date())
+                            .build();
+                })
+                .toList();
+        if (!toAdd.isEmpty()) {
+            userSavedVocabularyRepository.saveAll(toAdd);
+        }
     }
 
 

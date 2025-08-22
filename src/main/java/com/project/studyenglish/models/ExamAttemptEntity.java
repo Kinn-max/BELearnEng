@@ -26,9 +26,6 @@ public class ExamAttemptEntity extends BaseEntity {
     @JoinColumn(name = "category_id", nullable = false)
     private CategoryEntity categoryEntity;
 
-    @Column(name = "level")
-    private Integer level;
-
     @Column(name = "score_percentage")
     private Double scorePercentage;
 
@@ -46,4 +43,9 @@ public class ExamAttemptEntity extends BaseEntity {
 
     @Column(name = "time_taken")
     private Integer timeTaken;
+
+    // Helper method để lấy level từ category
+    public Integer getLevel() {
+        return this.categoryEntity != null ? this.categoryEntity.getLevel() : null;
+    }
 }

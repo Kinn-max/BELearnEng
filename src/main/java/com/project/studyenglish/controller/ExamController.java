@@ -1,9 +1,14 @@
 package com.project.studyenglish.controller;
 
+import com.project.studyenglish.components.JwtTokenUtil;
 import com.project.studyenglish.dto.ExamDto;
 import com.project.studyenglish.dto.VocabularyDto;
 import com.project.studyenglish.dto.request.ExamRequest;
+import com.project.studyenglish.dto.request.ExamSubmissionRequest;
+import com.project.studyenglish.dto.response.*;
+import com.project.studyenglish.service.impl.ExamAppService;
 import com.project.studyenglish.service.impl.ExamService;
+import jakarta.servlet.http.HttpServletRequest;
 import jakarta.validation.Valid;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
@@ -24,6 +29,10 @@ import java.util.stream.Collectors;
 public class ExamController {
     @Autowired
     private ExamService examService;
+    @Autowired
+    private ExamAppService examAppService;
+    @Autowired
+    private JwtTokenUtil jwtTokenUtil;
     @GetMapping(value =  "")
     public ResponseEntity<List<ExamDto>> getAllExam() {
        List<ExamDto> examDtoList = examService.getAllExam();
@@ -81,4 +90,58 @@ public class ExamController {
             return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(e.getMessage());
         }
     }
+    //
+
+    @GetMapping("/progress/{userId}")
+    public ResponseEntity<UserExamProgressResponse> getUserExamProgress(@PathVariable Long userId) {
+        UserExamProgressResponse progress = examAppService.getUserExamProgress(userId);
+        return ResponseEntity.ok(progress);
+    }
+
+    @GetMapping("/questions/{level}/{userId}")
+    public List<ExamResponse> getQuestionsByLevel(
+            @PathVariable Integer level,
+            @PathVariable Long userId
+    ) {
+        return examAppService.getExamQuestionsByLevel(level, userId);
+    }
+    @PostMapping("/submit")
+    public ExamSubmissionResponse submitExam(@RequestBody ExamSubmissionRequest request) {
+        return examAppService.submitExamByLevel(
+                request.getLevel(),
+                request.getAnswers(),
+                request.getUserId(),
+                request.getTimeTaken()
+        );
+    }
+
+
+    // API xem lại kết quả của một attempt
+    @GetMapping("/result/{attemptId}")
+    public ResponseEntity<ExamSubmissionResponse> getExamResult(@PathVariable Long attemptId) {
+        ExamSubmissionResponse response = examAppService.getExamResult(attemptId);
+        return ResponseEntity.ok(response);
+    }
+    @GetMapping("/result/attempt/{cateId}")
+    public ResponseEntity<?> getExamResultList(@PathVariable Long cateId, HttpServletRequest request) {
+        try {
+            String token = request.getHeader("Authorization").substring(7);
+            Long userId = jwtTokenUtil.extractUserId(token);
+
+            if (userId == null) {
+                return ResponseEntity.badRequest().body("You need to log in first!");
+            }
+            List<ExamSubmissionResponse> responses = examAppService.getExamResultList(userId, cateId);
+            return ResponseEntity.ok(responses);
+
+        } catch (Exception e) {
+            return ResponseEntity.badRequest().body("Error: " + e.getMessage());
+        }
+    }
+
+    @GetMapping("/history/{userId}")
+    public List<ExamAttemptResponse> getAttemptHistory(@PathVariable Long userId) {
+        return examAppService.getUserAttemptHistory(userId);
+    }
+
 }

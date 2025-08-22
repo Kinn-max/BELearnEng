@@ -1,6 +1,9 @@
 package com.project.studyenglish.dto.response;
 
+import com.project.studyenglish.dto.VocabularyDto;
 import lombok.*;
+
+import java.util.List;
 
 @Builder
 @Getter
@@ -8,8 +11,6 @@ import lombok.*;
 @AllArgsConstructor
 @NoArgsConstructor
 public class VocabularyIncorrectResponse {
-    private Long id;
     private Long progressId;
-    private Long vocabularyId;
-    private String vocabularyWord;
+    List<VocabularyDto> vocabularies;
 }

@@ -1,15 +1,16 @@
 package com.project.studyenglish.controller;
 
-import com.project.studyenglish.dto.CategoryOfCommonDto;
-import com.project.studyenglish.dto.ProductDto;
+import com.project.studyenglish.components.JwtTokenUtil;
 import com.project.studyenglish.dto.VocabularyDto;
-import com.project.studyenglish.dto.request.CategoryRequest;
+import com.project.studyenglish.dto.request.UserSavedVocabularyListRequest;
+
 import com.project.studyenglish.dto.request.VocabularyLearningProgressRequest;
 import com.project.studyenglish.dto.request.VocabularyRequest;
+import com.project.studyenglish.dto.response.VocabularyIncorrectResponse;
 import com.project.studyenglish.dto.response.VocabularyProgressOverviewResponse;
 import com.project.studyenglish.dto.response.VocabularyProgressResponse;
 import com.project.studyenglish.service.IVocabularyService;
-import feign.Body;
+import jakarta.servlet.http.HttpServletRequest;
 import jakarta.validation.Valid;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
@@ -30,6 +31,8 @@ import java.util.stream.Collectors;
 public class VocabularyController {
     @Autowired
     private IVocabularyService vocabularyService;
+    @Autowired
+    private JwtTokenUtil jwtTokenUtil;
     @GetMapping(value = "")
     public ResponseEntity<List<VocabularyDto>> getAllVocabulary() {
         List<VocabularyDto> vocabularyDtoList = vocabularyService.getAllVocabularies();
@@ -72,9 +75,12 @@ public class VocabularyController {
 
     }
     @GetMapping("/by-category/{id}/status")
-    public ResponseEntity<?> getAllVocabularyByCategoryStatus(@PathVariable Long id) {
+    public ResponseEntity<?> getAllVocabularyByCategoryStatus(@PathVariable Long id, HttpServletRequest request) {
+
         try {
-            List<VocabularyDto> result= vocabularyService.getAllVocabularyByCategoryAndStatus(id);
+            String token = request.getHeader("Authorization").substring(7);
+            Long userId = jwtTokenUtil.extractUserId(token);
+            List<VocabularyDto> result= vocabularyService.getAllVocabularyByCategoryAndStatus(id,userId);
             return ResponseEntity.ok(result);
         } catch (Exception e) {
             return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(e.getMessage());
@@ -113,6 +119,26 @@ public class VocabularyController {
                         .body("No progress found for this user and category");
             }
             return ResponseEntity.ok(vocab);
+        } catch (Exception e) {
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(e.getMessage());
+        }
+    }
+    @GetMapping("/incorrect/by-progress/{id}")
+    public ResponseEntity<?> getVocabIncorrectByProgressId(@PathVariable Long id, HttpServletRequest request) {
+        try {
+            String token = request.getHeader("Authorization").substring(7);
+            Long userId = jwtTokenUtil.extractUserId(token);
+            VocabularyIncorrectResponse vocab = vocabularyService.getVocabularyIncorrectByProgressId(id,userId);
+            return ResponseEntity.ok(vocab);
+        } catch (Exception e) {
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(e.getMessage());
+        }
+    }
+    @PostMapping("/favorite")
+    public ResponseEntity<?> saveVocabFavorite(@RequestBody UserSavedVocabularyListRequest rq) {
+        try {
+            vocabularyService.saveUserSavedVocabularies(rq);
+            return ResponseEntity.ok(Map.of("message","success"));
         } catch (Exception e) {
             return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(e.getMessage());
         }
