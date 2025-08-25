@@ -107,9 +107,6 @@ public class ExamAppService {
                 .build();
     }
 
-    /**
-     * Lấy câu hỏi theo level (thông qua category)
-     */
     public List<ExamResponse> getExamQuestionsByLevel(Integer level, Long userId) {
         // Kiểm tra quyền truy cập
         UserExamProgressEntity progress = userExamProgressRepository
@@ -141,7 +138,7 @@ public class ExamAppService {
                         .answerC(exam.getAnswerC())
                         .answerD(exam.getAnswerD())
                         .image(exam.getImage())
-                        .level(category.getLevel())
+                        .level(level)
                         .difficulty(exam.getDifficulty())
                         .categoryId(exam.getCategoryEntity().getId())
                         .build())
@@ -263,12 +260,11 @@ public class ExamAppService {
             return false;
         }
 
-        // Kiểm tra đã pass level này chưa
         boolean alreadyPassed = examAttemptRepository
                 .existsByUserIdAndLevelAndPassed(progress.getUserEntity().getId(), levelPassed);
 
         if (alreadyPassed) {
-            return false; // Đã pass rồi, không unlock thêm
+            return false;
         }
 
         boolean levelUnlocked = false;
@@ -423,7 +419,7 @@ public class ExamAppService {
                         .isPassed(attempt.getIsPassed())
                         .levelUnlocked(false)
                         .newMaxLevel(null)
-                        .message("Kết quả đã lưu từ " + attempt.getAttemptDate())
+                        .message( attempt.getAttemptDate().toString())
                         .questionResults(new ArrayList<>())
                         .build()
                 )
