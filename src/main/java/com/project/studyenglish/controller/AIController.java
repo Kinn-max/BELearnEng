@@ -1,5 +1,6 @@
 package com.project.studyenglish.controller;
 
+import com.project.studyenglish.dto.request.AIRenderQuestion;
 import com.project.studyenglish.dto.request.AITranslateRequest;
 import com.project.studyenglish.service.impl.AIService;
 import lombok.RequiredArgsConstructor;
@@ -16,6 +17,10 @@ public class AIController {
     @PostMapping("/translate")
     public ResponseEntity<?> getTranslate(@RequestBody AITranslateRequest translateRequest ) {
         return ResponseEntity.ok(aiService.translate(translateRequest));
+    }
+    @PostMapping("/render-question")
+    public ResponseEntity<?> getRenderQuestion(@RequestBody AIRenderQuestion rq ) {
+        return ResponseEntity.ok(aiService.getRenderQuestion(rq));
     }
 
 }

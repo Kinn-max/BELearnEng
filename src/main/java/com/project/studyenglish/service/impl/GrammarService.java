@@ -2,6 +2,7 @@ package com.project.studyenglish.service.impl;
 
 import com.project.studyenglish.dto.GrammarDto;
 import com.project.studyenglish.dto.request.GrammarRequest;
+import com.project.studyenglish.dto.response.GrammarOverView;
 import com.project.studyenglish.models.CategoryEntity;
 import com.project.studyenglish.models.GrammarEntity;
 import com.project.studyenglish.models.ProductEntity;
@@ -17,6 +18,7 @@ import org.springframework.stereotype.Service;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.stream.Collectors;
 
 @Service
 public class GrammarService implements IGrammarService {
@@ -35,6 +37,18 @@ public class GrammarService implements IGrammarService {
             grammarDtoList.add(grammarDto);
         }
         return grammarDtoList;
+    }
+
+    @Override
+    public List<GrammarOverView> getAllGrammarOverviewByCategory(Long id) {
+        return grammarRepository.findByCategoryEntity_Id(id)
+                .stream()
+                .map(grammarEntity -> new GrammarOverView(
+                        grammarEntity.getId(),
+                        grammarEntity.getName(),
+                        grammarEntity.getImage()
+                ))
+                .collect(Collectors.toList());
     }
 
     @Override

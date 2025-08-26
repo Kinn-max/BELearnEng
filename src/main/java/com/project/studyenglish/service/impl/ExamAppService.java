@@ -22,7 +22,7 @@ public class ExamAppService {
     private final UserExamProgressRepository userExamProgressRepository;
     private final UserRepository userRepository;
     private final CategoryRepository categoryRepository;
-    private static final double PASS_THRESHOLD = 0.7; // 70% để pass
+    private static final double PASS_THRESHOLD = 0.8;
 
     /**
      * Lấy progress của user - theo level system mới
@@ -145,9 +145,7 @@ public class ExamAppService {
                 .collect(Collectors.toList());
     }
 
-    /**
-     * Submit bài thi theo level mới
-     */
+
     @Transactional
     public ExamSubmissionResponse submitExamByLevel(Integer level, List<ExamAnswerRequest> answers,
                                                     Long userId, Integer timeTaken) {
@@ -155,13 +153,11 @@ public class ExamAppService {
                 .findByUserEntityId(userId)
                 .orElse(createInitialProgress(userId));
 
-        // Kiểm tra quyền truy cập level
         if (level > progress.getMaxLevelUnlocked()) {
             throw new IllegalArgumentException("Level " + level +
                     " chưa được mở khóa. Bạn chỉ có thể làm level tối đa: " + progress.getMaxLevelUnlocked());
         }
 
-        // Tìm category tương ứng với level
         CategoryEntity category = categoryRepository
                 .findExamCategoryByLevel(level)
                 .orElseThrow(() -> new IllegalArgumentException("Không tìm thấy nội dung cho level " + level));
@@ -213,10 +209,21 @@ public class ExamAppService {
             questionResults.add(result);
         }
 
-        double scorePercentage = (double) correctCount / questions.size() * 100;
-        boolean isPassed = scorePercentage >= (PASS_THRESHOLD * 100);
+        int total = questions.size();
+        int minCorrect = (int) Math.ceil(PASS_THRESHOLD * total);
+        boolean isPassed = correctCount >= minCorrect;
+        double scorePercentage = (correctCount * 100.0) / total;
 
-        // Lưu exam attempt
+        boolean levelUnlocked = false;
+        if (isPassed) {
+            boolean alreadyPassed = examAttemptRepository
+                    .existsByUserIdAndLevelAndPassed(userId, level);
+
+            if (!alreadyPassed) {
+                levelUnlocked = updateUserProgress(progress, level, isPassed);
+            }
+        }
+
         UserEntity user = userRepository.findById(userId)
                 .orElseThrow(() -> new RuntimeException("Không tìm thấy user"));
 
@@ -233,10 +240,7 @@ public class ExamAppService {
 
         attempt = examAttemptRepository.save(attempt);
 
-        // Cập nhật progress
-        boolean levelUnlocked = updateUserProgress(progress, level, isPassed);
         Integer newMaxLevel = progress.getMaxLevelUnlocked();
-
         String message = buildResultMessage(isPassed, levelUnlocked, newMaxLevel);
 
         return ExamSubmissionResponse.builder()
@@ -252,18 +256,8 @@ public class ExamAppService {
                 .build();
     }
 
-    /**
-     * Cập nhật progress khi user pass level
-     */
     private boolean updateUserProgress(UserExamProgressEntity progress, Integer levelPassed, boolean isPassed) {
         if (!isPassed) {
-            return false;
-        }
-
-        boolean alreadyPassed = examAttemptRepository
-                .existsByUserIdAndLevelAndPassed(progress.getUserEntity().getId(), levelPassed);
-
-        if (alreadyPassed) {
             return false;
         }
 
@@ -271,13 +265,11 @@ public class ExamAppService {
         Integer totalLevels = categoryRepository.getMaxLevel("EXAM");
         if (totalLevels == null) totalLevels = 1;
 
-        // Unlock level tiếp theo nếu pass level cao nhất hiện tại
         if (levelPassed.equals(progress.getMaxLevelUnlocked()) && levelPassed < totalLevels) {
             progress.setMaxLevelUnlocked(levelPassed + 1);
             levelUnlocked = true;
         }
 
-        // Cập nhật current level
         if (levelPassed >= progress.getCurrentLevel()) {
             if (levelPassed.equals(progress.getCurrentLevel()) && levelPassed < totalLevels) {
                 progress.setCurrentLevel(levelPassed + 1);
@@ -290,9 +282,6 @@ public class ExamAppService {
         return levelUnlocked;
     }
 
-    /**
-     * Tạo message kết quả
-     */
     private String buildResultMessage(boolean isPassed, boolean levelUnlocked, Integer newMaxLevel) {
         StringBuilder message = new StringBuilder();
 

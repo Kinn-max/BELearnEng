@@ -5,6 +5,7 @@ import com.project.studyenglish.dto.GrammarDto;
 import com.project.studyenglish.dto.VocabularyDto;
 import com.project.studyenglish.dto.request.GrammarRequest;
 import com.project.studyenglish.dto.request.ProductRequest;
+import com.project.studyenglish.dto.response.GrammarOverView;
 import com.project.studyenglish.models.GrammarEntity;
 import com.project.studyenglish.service.impl.GrammarService;
 import jakarta.validation.Valid;
@@ -31,6 +32,11 @@ public class GrammarController {
     @GetMapping(value = "/by-category/{id}")
     public ResponseEntity<List<GrammarDto>> getAllGrammarByCategoryId(@PathVariable Long id) {
         List<GrammarDto> grammarDtoList = grammarService.getAllGrammarByCategory(id);
+        return ResponseEntity.ok(grammarDtoList);
+    }
+    @GetMapping(value = "/overview/by-category/{id}")
+    public ResponseEntity<List<GrammarOverView>> getAllGrammarOverviewByCategoryId(@PathVariable Long id) {
+        List<GrammarOverView> grammarDtoList = grammarService.getAllGrammarOverviewByCategory(id);
         return ResponseEntity.ok(grammarDtoList);
     }
     @PostMapping("")
