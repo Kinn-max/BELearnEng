@@ -38,7 +38,7 @@ public class AudioAnalysisController {
 
             // Process the request
             AudioAnalysisRequest request = new AudioAnalysisRequest(audioFile, expectedText.trim());
-            AudioAnalysisResponse response = audioAnalysisService.audioAnalysis(request);
+            AudioAnalysisResponse response = audioAnalysisService.audioAnalysisEnhanced(request);
 
             return ResponseEntity.ok(response);
 
@@ -54,18 +54,11 @@ public class AudioAnalysisController {
     public ResponseEntity<String> health() {
         return ResponseEntity.ok("Audio Analysis Service is running");
     }
-
-    @PostMapping("/test-tts")
-    public ResponseEntity<AudioAnalysisResponse> testTTS(@RequestParam("text") String text) {
-        try {
-            // Test chỉ phần TTS
-            AudioAnalysisRequest request = new AudioAnalysisRequest(null, text);
-            AudioAnalysisResponse response = audioAnalysisService.audioAnalysis(request);
-            return ResponseEntity.ok(response);
-        } catch (Exception e) {
-            return ResponseEntity.internalServerError().body(
-                    new AudioAnalysisResponse("TTS test failed: " + e.getMessage(), null)
-            );
-        }
+    @PostMapping("/convert-audio")
+    public ResponseEntity<AudioAnalysisResponse> analyzeAudio(
+            @RequestParam("message") String expectedText) {
+        AudioAnalysisResponse response = audioAnalysisService.convertTextToAudio(expectedText);
+        return ResponseEntity.ok(response);
     }
+
 }

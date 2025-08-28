@@ -1,12 +1,16 @@
-package com.project.studyenglish.dto;
-import lombok.*;
+package com.project.studyenglish.dto.response;
 
-@Getter
-@Setter
+
+import lombok.AllArgsConstructor;
+import lombok.Builder;
+import lombok.Data;
+import lombok.NoArgsConstructor;
+
+@Data
 @Builder
-@AllArgsConstructor
 @NoArgsConstructor
-public class CategoryOfCommonDto {
+@AllArgsConstructor
+public class CategoryOfSpeak {
     private Long id;
     private String name;
     private String description;
@@ -16,5 +20,6 @@ public class CategoryOfCommonDto {
     private String createdAt;
     private int quantity;
     private Integer level;
-
+    private boolean done;
+    private Double averageScore;
 }
