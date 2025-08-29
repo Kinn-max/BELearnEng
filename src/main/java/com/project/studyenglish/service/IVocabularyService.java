@@ -1,6 +1,5 @@
 package com.project.studyenglish.service;
 
-import com.project.studyenglish.dto.ProductDto;
 import com.project.studyenglish.dto.VocabularyDto;
 import com.project.studyenglish.dto.request.UserSavedVocabularyListRequest;
 import com.project.studyenglish.dto.request.VocabularyLearningProgressRequest;
@@ -24,4 +23,5 @@ public interface IVocabularyService {
     VocabularyProgressResponse getProgress(Long userId, Long cateId);
     VocabularyIncorrectResponse getVocabularyIncorrectByProgressId(Long id, Long userId);
     void saveUserSavedVocabularies(UserSavedVocabularyListRequest rq);
+    List<VocabularyDto> gerUserSavedVocabularies(Long userId);
 }

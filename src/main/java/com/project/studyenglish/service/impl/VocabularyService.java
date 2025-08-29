@@ -276,5 +276,19 @@ public class VocabularyService implements IVocabularyService {
         }
     }
 
+    @Override
+    public List<VocabularyDto> gerUserSavedVocabularies(Long userId) {
+        return userSavedVocabularyRepository.findAllByUserEntityId(userId)
+                .stream()
+                .map(UserSavedVocabularyEntity::getVocabularyEntity)
+                .map(vocab -> {
+                    VocabularyDto dto = vocabularyConverter.toVocabularyDto(vocab);
+                    dto.setIsFavorite(true);
+                    return dto;
+                })
+                .toList();
+    }
+
+
 
 }

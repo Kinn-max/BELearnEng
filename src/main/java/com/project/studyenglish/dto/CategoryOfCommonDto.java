@@ -16,5 +16,4 @@ public class CategoryOfCommonDto {
     private String createdAt;
     private int quantity;
     private Integer level;
-
 }

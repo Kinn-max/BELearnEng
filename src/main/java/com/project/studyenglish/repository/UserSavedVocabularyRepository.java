@@ -9,9 +9,11 @@ import java.util.List;
 
 @Repository
 public interface UserSavedVocabularyRepository extends JpaRepository<UserSavedVocabularyEntity, Long> {
-
     List<UserSavedVocabularyEntity> findByUserEntityId(Long userId);
     boolean existsByUserEntityIdAndVocabularyEntityId(Long userId, Long vocabularyId);
     void deleteByUserEntityIdAndVocabularyEntityId(Long userId, Long vocabularyId);
     List<UserSavedVocabularyEntity> findByUserEntityIdAndVocabularyEntityIdIn(Long userId, List<Long> vocabularyIds);
+    List<UserSavedVocabularyEntity> findAllByUserEntityId(Long userId);
+    Integer countByUserEntityId(Long userId);
+
 }

@@ -1,10 +1,14 @@
 package com.project.studyenglish.controller;
 
+import com.project.studyenglish.components.JwtTokenUtil;
 import com.project.studyenglish.constant.NameOfCategory;
 import com.project.studyenglish.dto.CategoryOfCommonDto;
 import com.project.studyenglish.dto.request.CategoryRequest;
+import com.project.studyenglish.dto.response.UserFavotiteResponse;
+import com.project.studyenglish.repository.UserSavedVocabularyRepository;
 import com.project.studyenglish.service.impl.CategoryService;
 import com.project.studyenglish.service.impl.VocabularyService;
+import jakarta.servlet.http.HttpServletRequest;
 import jakarta.validation.Valid;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.repository.query.Param;
@@ -27,7 +31,9 @@ public class CategoryController {
     @Autowired
     private CategoryService categoryService;
     @Autowired
-    private VocabularyService vocabularyService;
+    private JwtTokenUtil jwtTokenUtil;
+    @Autowired
+    private UserSavedVocabularyRepository userSavedVocabularyRepository;
     @GetMapping(value =  "/vocabulary")
     public ResponseEntity<List<CategoryOfCommonDto>> getAllCategoryOfVocabulary() {
         List<CategoryOfCommonDto> vocabularyDtoList = categoryService.getAllItemOfCategory(NameOfCategory.VOCABULARY);
@@ -116,9 +122,19 @@ public class CategoryController {
 
     }
     @GetMapping(value =  "/vocabulary/status/random")
-    public ResponseEntity<List<CategoryOfCommonDto>> getAllCategoryOfVocabularyAndStatusRandom(@Param("number") int number) {
+    public ResponseEntity<UserFavotiteResponse> getAllCategoryOfVocabularyAndStatusRandom(@Param("number") int number, HttpServletRequest request) {
+        String token = request.getHeader("Authorization").substring(7);
+        Long userId = jwtTokenUtil.extractUserId(token);
         List<CategoryOfCommonDto> categoryOfCommonDtos = categoryService.getRandomCategoryOfProduct(NameOfCategory.VOCABULARY,number);
-        return ResponseEntity.ok(categoryOfCommonDtos);
+        Integer numberFavorite = userSavedVocabularyRepository.countByUserEntityId(userId);
+        if (numberFavorite == null) {
+            numberFavorite = 0;
+        }
+        UserFavotiteResponse userHomeFlashCard = UserFavotiteResponse.builder()
+                .favoriteNumber(numberFavorite)
+                .categoryOfCommonDto(categoryOfCommonDtos)
+                .build();
+        return ResponseEntity.ok(userHomeFlashCard);
     }
 
 }

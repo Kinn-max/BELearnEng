@@ -39,5 +39,7 @@ public interface CategoryRepository extends JpaRepository<CategoryEntity, Long>,
     @Query("SELECT CASE WHEN COUNT(c) > 0 THEN true ELSE false END FROM CategoryEntity c " +
             "WHERE c.level = :level AND c.codeName = :categoryType AND c.status = true")
     boolean existsByLevelAndCategoryType(@Param("level") Integer level, @Param("categoryType") String categoryType);
+    int countByCodeNameIn(List<String> codeNames);
+
 }
 

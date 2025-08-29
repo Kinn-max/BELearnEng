@@ -5,6 +5,7 @@ import com.project.studyenglish.dto.CategoryOfCommonDto;
 import com.project.studyenglish.dto.request.CategoryRequest;
 import com.project.studyenglish.models.CategoryEntity;
 import com.project.studyenglish.repository.CategoryRepository;
+import com.project.studyenglish.repository.UserSavedVocabularyRepository;
 import com.project.studyenglish.service.ICategoryService;
 import org.modelmapper.ModelMapper;
 import org.springframework.beans.factory.annotation.Autowired;

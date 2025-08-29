@@ -13,9 +13,7 @@ public class UserResponse {
     private String createdAt;
     private boolean active;
     private String phoneNumber;
-    private String province;
-    private String district;
-    private String ward;
+    private String address;
     private String email;
     private String image;
 }

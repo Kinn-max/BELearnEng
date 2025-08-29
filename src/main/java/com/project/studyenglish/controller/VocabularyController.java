@@ -143,5 +143,16 @@ public class VocabularyController {
             return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(e.getMessage());
         }
     }
+    @GetMapping("/by-userId")
+    public ResponseEntity<?> getVocabFavorite( HttpServletRequest request) {
+        try {
+            String token = request.getHeader("Authorization").substring(7);
+            Long userId = jwtTokenUtil.extractUserId(token);
+            List<VocabularyDto> response = vocabularyService.gerUserSavedVocabularies(userId);
+            return ResponseEntity.ok(response);
+        } catch (Exception e) {
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(e.getMessage());
+        }
+    }
 
 }
