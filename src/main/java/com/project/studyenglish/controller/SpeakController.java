@@ -1,10 +1,13 @@
 package com.project.studyenglish.controller;
 
+import com.project.studyenglish.dto.request.SpeakAttemptRequest;
 import com.project.studyenglish.service.impl.SpeakService;
 import jakarta.servlet.http.HttpServletRequest;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
+
+import java.util.Map;
 
 @RestController
 @RequestMapping("/api/speak")
@@ -20,5 +23,10 @@ public class SpeakController {
     @GetMapping("/by-category/{cateId}")
     public ResponseEntity<?> getALlSpeakDataByCategoryId(@PathVariable Long cateId) {
         return  ResponseEntity.ok(speakService.getAllSpeakDataByCateId(cateId));
+    }
+    @PostMapping("/submit")
+    public ResponseEntity<?> submitAttempt(@RequestBody SpeakAttemptRequest speakAttemptRequest) {
+        speakService.submitAttempt(speakAttemptRequest);
+        return  ResponseEntity.ok(Map.of("message","Successfully Submitted!"));
     }
 }

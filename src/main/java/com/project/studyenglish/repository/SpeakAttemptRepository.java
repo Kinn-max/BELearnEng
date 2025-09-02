@@ -5,10 +5,15 @@ import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
 
+import java.util.Optional;
+
 public interface SpeakAttemptRepository extends JpaRepository<SpeakAttemptEntity, Long> {
     boolean existsByUserEntityIdAndCategoryEntityId(Long userId, Long categoryId);
     @Query("SELECT AVG(sa.scorePercentage) FROM SpeakAttemptEntity sa " +
             "WHERE sa.userEntity.id = :userId AND sa.categoryEntity.id = :categoryId")
     Double findAverageScoreByUserAndCategory(@Param("userId") Long userId,
                                              @Param("categoryId") Long categoryId);
+    Optional<SpeakAttemptEntity> findByUserEntityIdAndCategoryEntityId(Long userId, Long categoryId);
+
+
 }

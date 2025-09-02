@@ -26,13 +26,13 @@ public class AudioAnalysisController {
             // Validate input
             if (audioFile.isEmpty()) {
                 return ResponseEntity.badRequest().body(
-                        new AudioAnalysisResponse("Audio file is required", null)
+                        new AudioAnalysisResponse("Audio file is required", null,null)
                 );
             }
 
             if (expectedText == null || expectedText.trim().isEmpty()) {
                 return ResponseEntity.badRequest().body(
-                        new AudioAnalysisResponse("Expected text is required", null)
+                        new AudioAnalysisResponse("Expected text is required", null,null)
                 );
             }
 
@@ -45,7 +45,7 @@ public class AudioAnalysisController {
         } catch (Exception e) {
             e.printStackTrace();
             return ResponseEntity.internalServerError().body(
-                    new AudioAnalysisResponse("Internal server error: " + e.getMessage(), null)
+                    new AudioAnalysisResponse("Internal server error: " + e.getMessage(), null,null)
             );
         }
     }

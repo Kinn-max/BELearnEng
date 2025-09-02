@@ -50,18 +50,21 @@ public class AudioAnalysisService {
 
             // 5. Format final response
             String formattedResponse = formatAnalysisResponse(analysis);
-
-            return new AudioAnalysisResponse(formattedResponse, audioBase64);
+            Integer overallScore = calculateOverallScore(analysis);
+            return new AudioAnalysisResponse(formattedResponse, audioBase64,overallScore);
 
         } catch (Exception e) {
             e.printStackTrace();
             return new AudioAnalysisResponse(
-                    "Sorry, there was an error analyzing your pronunciation. Please try again.",
-                    null
+                    "Có lỗi khi phân tích phát âm. Vui lòng thử lại.",
+                    null,
+                    0
             );
         }
     }
-
+    private Integer calculateOverallScore(DetailedAnalysis analysis) {
+        return (analysis.pronunciationScore() + analysis.fluencyScore() + analysis.intonationScore()) / 3;
+    }
     private String transcribeWithGemini(MultipartFile audioFile) throws IOException {
         if (audioFile.isEmpty()) {
             return "Error: The provided audio file is empty.";
@@ -240,15 +243,15 @@ public class AudioAnalysisService {
     public AudioAnalysisResponse convertTextToAudio(String text) {
         try {
             String audioBase64 = generateAudioFeedback(text);
-
-
             return new AudioAnalysisResponse(
                     "Converted text to audio successfully.",
-                    audioBase64
+                    audioBase64,
+                    null
             );
         } catch (Exception e) {
             return new AudioAnalysisResponse(
                     "Failed to convert text to audio: " + e.getMessage(),
+                    null,
                     null
             );
         }
