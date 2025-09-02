@@ -15,5 +15,6 @@ public interface ICategoryService {
     void statusCategory(Long id);
     CategoryOfCommonDto getCategoryById(Long id);
     CategoryEntity getCategoryEntityById(Long id);
-    List<CategoryOfCommonDto> getRandomCategoryOfProduct(String codeName,int number);
+    List<CategoryOfCommonDto> getRandomCategoryOfProduct(String codeName,int number,Long userId);
+    List<CategoryOfCommonDto> getAllFlashCardByUserId(String codeName,Long userId);
 }

@@ -125,7 +125,22 @@ public class CategoryController {
     public ResponseEntity<UserFavotiteResponse> getAllCategoryOfVocabularyAndStatusRandom(@Param("number") int number, HttpServletRequest request) {
         String token = request.getHeader("Authorization").substring(7);
         Long userId = jwtTokenUtil.extractUserId(token);
-        List<CategoryOfCommonDto> categoryOfCommonDtos = categoryService.getRandomCategoryOfProduct(NameOfCategory.VOCABULARY,number);
+        List<CategoryOfCommonDto> categoryOfCommonDtos = categoryService.getRandomCategoryOfProduct(NameOfCategory.VOCABULARY,number,userId);
+        Integer numberFavorite = userSavedVocabularyRepository.countByUserEntityId(userId);
+        if (numberFavorite == null) {
+            numberFavorite = 0;
+        }
+        UserFavotiteResponse userHomeFlashCard = UserFavotiteResponse.builder()
+                .favoriteNumber(numberFavorite)
+                .categoryOfCommonDto(categoryOfCommonDtos)
+                .build();
+        return ResponseEntity.ok(userHomeFlashCard);
+    }
+    @GetMapping(value =  "/vocabulary/flashcard/by-userId")
+    public ResponseEntity<UserFavotiteResponse> getAllCategoryOfVocabularyByUserId( HttpServletRequest request) {
+        String token = request.getHeader("Authorization").substring(7);
+        Long userId = jwtTokenUtil.extractUserId(token);
+        List<CategoryOfCommonDto> categoryOfCommonDtos = categoryService.getAllFlashCardByUserId(NameOfCategory.VOCABULARY,userId);
         Integer numberFavorite = userSavedVocabularyRepository.countByUserEntityId(userId);
         if (numberFavorite == null) {
             numberFavorite = 0;

@@ -6,6 +6,7 @@ import com.project.studyenglish.dto.request.CategoryRequest;
 import com.project.studyenglish.models.CategoryEntity;
 import com.project.studyenglish.repository.CategoryRepository;
 import com.project.studyenglish.repository.UserSavedVocabularyRepository;
+import com.project.studyenglish.repository.VocabularyLearningProgressRepository;
 import com.project.studyenglish.service.ICategoryService;
 import org.modelmapper.ModelMapper;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -20,6 +21,8 @@ public class CategoryService implements ICategoryService {
     private CategoryRepository categoryRepository;
     @Autowired
     private ModelMapper modelMapper;
+    @Autowired
+    private VocabularyLearningProgressRepository progressRepository;
     @Override
     public List<CategoryOfCommonDto> getAllItemOfCategory(String codeName ) {
         List<CategoryEntity> categoryEntityList = categoryRepository.getAllOptionsCategory(codeName);
@@ -120,7 +123,7 @@ public class CategoryService implements ICategoryService {
     }
 
     @Override
-    public List<CategoryOfCommonDto> getRandomCategoryOfProduct(String codeName,int number) {
+    public List<CategoryOfCommonDto> getRandomCategoryOfProduct(String codeName,int number,Long userId) {
         List<CategoryEntity> categoryEntityList = categoryRepository.getAllOptionsCategoryAndStatusRandom(codeName,number);
         List<CategoryOfCommonDto> categoryOfCommonDtoList = new ArrayList<>();
         for (CategoryEntity category : categoryEntityList) {
@@ -137,6 +140,41 @@ public class CategoryService implements ICategoryService {
             if(category.getProductEntityList() != null && category.getProductEntityList().size() > 0) {
                 categoryOfCommonDto.setQuantity(category.getProductEntityList().size());
             }
+            boolean isLearned = progressRepository
+                    .findByUserEntityIdAndCategoryEntityId(userId, category.getId())
+                    .isPresent();
+
+            categoryOfCommonDto.setLearned(isLearned);
+
+            categoryOfCommonDtoList.add(categoryOfCommonDto);
+        }
+        return categoryOfCommonDtoList;
+    }
+
+    @Override
+    public List<CategoryOfCommonDto> getAllFlashCardByUserId(String codeName, Long userId) {
+        List<CategoryEntity> categoryEntityList = categoryRepository.getAllOptionsCategoryAndStatus(codeName);
+        List<CategoryOfCommonDto> categoryOfCommonDtoList = new ArrayList<>();
+        for (CategoryEntity category : categoryEntityList) {
+            CategoryOfCommonDto categoryOfCommonDto = modelMapper.map(category, CategoryOfCommonDto.class);
+            if(category.getExamEntityList() != null && category.getExamEntityList().size() > 0) {
+                categoryOfCommonDto.setQuantity(category.getExamEntityList().size());
+            }
+            if (category.getVocabularyEntityList() != null && category.getVocabularyEntityList().size() > 0) {
+                categoryOfCommonDto.setQuantity(category.getVocabularyEntityList().size());
+            }
+            if(category.getGrammarEntityList() != null && category.getGrammarEntityList().size() > 0) {
+                categoryOfCommonDto.setQuantity(category.getGrammarEntityList().size());
+            }
+            if(category.getProductEntityList() != null && category.getProductEntityList().size() > 0) {
+                categoryOfCommonDto.setQuantity(category.getProductEntityList().size());
+            }
+            boolean isLearned = progressRepository
+                    .findByUserEntityIdAndCategoryEntityId(userId, category.getId())
+                    .isPresent();
+
+            categoryOfCommonDto.setLearned(isLearned);
+
             categoryOfCommonDtoList.add(categoryOfCommonDto);
         }
         return categoryOfCommonDtoList;
